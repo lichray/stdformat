@@ -53,12 +53,20 @@ struct basic_string_view
 {
 	using traits_type = Traits;
 	using value_type = typename Traits::char_type;
+	using size_type = std::size_t;
+	using difference_type = std::ptrdiff_t;
+
 	using pointer = value_type const*;
 	using const_pointer = pointer;
 	using reference = value_type const&;
 	using const_reference = reference;
+
 	using iterator = detail::iter<basic_string_view>;
 	using const_iterator = iterator;
+	using reverse_iterator = std::reverse_iterator<iterator>;
+	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+	static constexpr auto npos = size_type(-1);
 
 private:
 	std::pair<iterator, iterator> it_;

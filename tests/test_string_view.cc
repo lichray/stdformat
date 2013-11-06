@@ -10,5 +10,11 @@ int main()
 		char
 	    >{}, "horrible stdlib implementation");
 
+	static_assert(std::is_same
+	    <
+		stdex::wstring_view::reverse_iterator::difference_type,
+		stdex::wstring_view::difference_type
+	    >{}, "really horrible stdlib implementation");
+
 	string_view sv;
 }
