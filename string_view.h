@@ -136,6 +136,8 @@ struct basic_string_view
 		return sz_;
 	}
 
+	// N3762 violation: no max_size().
+
 	constexpr size_type length() const noexcept
 	{
 		return size();
@@ -144,6 +146,34 @@ struct basic_string_view
 	constexpr bool empty() const noexcept
 	{
 		return size() == 0;
+	}
+
+	// N3762 violations: element access return rvalues.
+
+	constexpr CharT operator[](size_type pos) const
+	{
+		return it_[pos];
+	}
+
+	constexpr CharT at(size_type pos) const
+	{
+		return pos < size() ? (*this)[pos] :
+		    throw std::out_of_range("basic_string_view::at");
+	}
+
+	constexpr CharT front() const
+	{
+		return (*this)[0];
+	}
+
+	constexpr CharT back() const
+	{
+		return (*this)[size() - 1];
+	}
+
+	constexpr CharT const* data() const noexcept
+	{
+		return &*it_;
 	}
 
 private:

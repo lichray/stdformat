@@ -37,4 +37,18 @@ int main()
 
 	assert(sv2.length() == 4);
 	assert(*sv2.rbegin() == 'w');
+	assert(*sv2.begin() == sv2.front());
+	assert(*sv2.rbegin() == sv2.back());
+	// N3762 violation: &front() is ill-formed.
+	assert(sv2.data() == &*sv2.begin());
+
+	try
+	{
+		sv2.at(4);
+		assert(0);
+	}
+	catch (std::exception&)
+	{
+		assert(1);
+	}
 }
