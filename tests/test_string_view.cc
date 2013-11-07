@@ -1,5 +1,7 @@
 #include "../string_view.h"
 
+#include <cassert>
+
 using stdex::string_view;
 
 int main()
@@ -22,5 +24,17 @@ int main()
 		string_view::difference_type
 	    >{}, "broken stdlib");
 
-	string_view sv;
+	static_assert(std::is_nothrow_default_constructible<string_view>{}, "");
+	static_assert(std::is_nothrow_move_constructible<string_view>{}, "");
+	static_assert(std::is_nothrow_move_assignable<string_view>{}, "");
+
+	constexpr string_view sv;
+
+	static_assert(sv.empty(), "");
+	assert(sv.length() == string_view(std::string()).size());
+
+	string_view sv2 = "meow\0!";
+
+	assert(sv2.length() == 4);
+	assert(*sv2.rbegin() == 'w');
 }

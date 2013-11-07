@@ -37,13 +37,13 @@ namespace stdex {
 namespace detail {
 
 template <typename Container>
-#if defined(_LIBCPP_VERSION)
+#if defined(_LIBCPP_VERSION) && 0
 using iter = std::__wrap_iter<typename Container::pointer>;
 #elif defined(__GLIBCXX__)
 using iter = __gnu_cxx::__normal_iterator
 	<typename Container::pointer, Container>;
 #else
-	#error "unsupported c++ standard library implementation"
+using iter = typename Container::pointer;
 #endif
 
 }
@@ -68,8 +68,87 @@ struct basic_string_view
 
 	static constexpr auto npos = size_type(-1);
 
+	constexpr basic_string_view() noexcept
+		: it_(), sz_()
+	{}
+
+	template <typename Allocator>
+	basic_string_view(std::basic_string
+	    <CharT, Traits, Allocator> const& str) noexcept
+		: basic_string_view(str.data(), str.size())
+	{}
+
+	basic_string_view(CharT const* str)
+		: basic_string_view(str, Traits::length(str))
+	{}
+
+	constexpr basic_string_view(CharT const* str, size_type len)
+		: it_(str), sz_(len)
+	{}
+
+	constexpr basic_string_view(basic_string_view const&) noexcept
+		= default;
+	basic_string_view& operator=(basic_string_view const&) noexcept
+		= default;
+
+	constexpr iterator begin() const noexcept
+	{
+		return it_;
+	}
+
+	constexpr iterator end() const noexcept
+	{
+		return it_ + sz_;
+	}
+
+	constexpr const_iterator cbegin() const noexcept
+	{
+		return begin();
+	}
+
+	constexpr const_iterator cend() const noexcept
+	{
+		return end();
+	}
+
+	reverse_iterator rbegin() const noexcept
+	{
+		return reverse_iterator(end());
+	}
+
+	reverse_iterator rend() const noexcept
+	{
+		return reverse_iterator(begin());
+	}
+
+	const_reverse_iterator crbegin() const noexcept
+	{
+		return rbegin();
+	}
+
+	const_reverse_iterator crend() const noexcept
+	{
+		return rend();
+	}
+
+	constexpr size_type size() const noexcept
+	{
+		return sz_;
+	}
+
+	constexpr size_type length() const noexcept
+	{
+		return size();
+	}
+
+	constexpr bool empty() const noexcept
+	{
+		return size() == 0;
+	}
+
 private:
-	std::pair<iterator, iterator> it_;
+	iterator it_;
+	size_type sz_;
 };
 
 using string_view = basic_string_view<char>;
