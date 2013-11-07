@@ -176,10 +176,47 @@ struct basic_string_view
 		return &*it_;
 	}
 
+	void clear() noexcept
+	{
+		sz_ = 0;
+	}
+
+	void remove_prefix(size_type n)
+	{
+		if (n > size())
+			throw std::out_of_range(
+			    "basic_string_view::remove_prefix");
+
+		it_ += n;
+		sz_ -= n;
+	}
+
+	void remove_suffix(size_type n)
+	{
+		if (n > size())
+			throw std::out_of_range(
+			    "basic_string_view::remove_prefix");
+
+		sz_ -= n;
+	}
+
+	void swap(basic_string_view& sv) noexcept
+	{
+		std::swap(it_, sv.it_);
+		std::swap(sz_, sv.sz_);
+	}
+
 private:
 	iterator it_;
 	size_type sz_;
 };
+
+template <typename CharT, typename Traits>
+void swap(basic_string_view<CharT, Traits>& a,
+    basic_string_view<CharT, Traits>& b) noexcept(noexcept(a.swap(b)))
+{
+	a.swap(b);
+}
 
 using string_view = basic_string_view<char>;
 using wstring_view = basic_string_view<wchar_t>;

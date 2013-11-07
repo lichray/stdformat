@@ -51,4 +51,18 @@ int main()
 	{
 		assert(1);
 	}
+
+	auto sv1 = sv2;
+	sv1.remove_prefix(2);
+	sv1.remove_suffix(1);
+	swap(sv1, sv2);
+
+	assert(sv1.size() == 4);
+	assert(sv1.front() == 'm');
+	assert(sv2.front() == 'o');
+	assert(sv2.size() == 1);
+	assert(sv2.back() == sv2.front());
+
+	sv2.clear();
+	// assert(sv2 == sv);
 }
