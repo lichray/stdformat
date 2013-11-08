@@ -247,6 +247,32 @@ struct basic_string_view
 			return p - data();
 	}
 
+	size_type find_first_of(basic_string_view s,
+	    size_type pos = 0) const noexcept
+	{
+		return find_first_of(s.data(), pos, s.size());
+	}
+
+	size_type find_first_of(CharT const* s, size_type pos,
+	    size_type n) const
+	{
+		if (pos >= size())
+			return npos;
+
+		auto it = std::find_first_of(begin() + pos, end(), s, s + n,
+		    [](CharT x, CharT y) { return traits_type::eq(x, y); });
+
+		if (it == end())
+			return npos;
+		else
+			return it - begin();
+	}
+
+	size_type find_first_of(CharT const* s, size_type pos = 0) const
+	{
+		return find_first_of(s, pos, traits_type::length(s));
+	}
+
 	friend inline
 	bool operator==(basic_string_view a, basic_string_view b)
 	{
