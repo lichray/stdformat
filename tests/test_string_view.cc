@@ -99,4 +99,11 @@ int main()
 	assert(sv1.find("") == 0);
 	assert(sv1.find(""_sv, sv1.length()) == sv1.length());
 	assert(sv1.find(""_sv, sv1.length() + 1) == string_view::npos);
+
+	assert(sv1.find_first_not_of('\0') == 0);
+	assert(sv1.find_first_not_of('m') == 1);
+	assert(sv1.find_first_not_of('\0', 4) == 5);
+	assert(sv1.find_first_not_of('\0', 100) == string_view::npos);
+	assert(sv0.find_first_not_of('\0') == string_view::npos);
+	assert("aaaa"_sv.find_first_not_of('a') == string_view::npos);
 }

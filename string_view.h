@@ -31,6 +31,7 @@
 #include <utility>
 #include <iterator>
 #include <type_traits>
+#include <functional>
 
 namespace stdex {
 
@@ -47,6 +48,8 @@ using iter = typename Container::pointer;
 #endif
 
 }
+
+using namespace std::placeholders;
 
 template <typename CharT, typename Traits = std::char_traits<CharT>>
 struct basic_string_view
@@ -304,6 +307,20 @@ struct basic_string_view
 	size_type find_first_of(CharT ch, size_type pos = 0) const
 	{
 		return find(ch, pos);
+	}
+
+	size_type find_first_not_of(CharT ch, size_type pos = 0) const
+	{
+		if (pos >= size())
+			return npos;
+
+		auto it = std::find_if_not(begin() + pos, end(),
+		    std::bind(traits_eq(), ch, _1));
+
+		if (it == end())
+			return npos;
+		else
+			return it - begin();
 	}
 
 	friend inline
