@@ -79,7 +79,7 @@ struct basic_string_view
 	{}
 
 	basic_string_view(CharT const* str)
-		: basic_string_view(str, Traits::length(str))
+		: basic_string_view(str, traits_type::length(str))
 	{}
 
 	constexpr basic_string_view(CharT const* str, size_type len)
@@ -195,7 +195,7 @@ struct basic_string_view
 	{
 		if (n > size())
 			throw std::out_of_range(
-			    "basic_string_view::remove_prefix");
+			    "basic_string_view::remove_suffix");
 
 		sz_ -= n;
 	}
@@ -230,6 +230,7 @@ private:
 };
 
 template <typename CharT, typename Traits>
+inline
 void swap(basic_string_view<CharT, Traits>& a,
     basic_string_view<CharT, Traits>& b) noexcept(noexcept(a.swap(b)))
 {
