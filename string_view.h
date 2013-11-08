@@ -224,6 +224,27 @@ struct basic_string_view
 		return rlen;
 	}
 
+	constexpr basic_string_view substr(size_type pos = 0,
+	    size_type n = npos) const
+	{
+		return { pos <= size() ? data() + pos :
+		    throw std::out_of_range("basic_string_view::substr"),
+		    std::min(n, size() - pos) };
+	}
+
+	friend inline
+	bool operator==(basic_string_view a, basic_string_view b)
+	{
+		return a.size() == b.size() and traits_type::compare(a.data(),
+		    b.data(), a.size()) == 0;
+	}
+
+	friend inline
+	bool operator!=(basic_string_view a, basic_string_view b)
+	{
+		return !(a == b);
+	}
+
 private:
 	iterator it_;
 	size_type sz_;

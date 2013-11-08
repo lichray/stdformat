@@ -58,14 +58,13 @@ int main()
 	sv1.remove_suffix(1);
 	swap(sv1, sv2);
 
-	assert(sv1.size() == 4);
-	assert(sv1.front() == 'm');
-	assert(sv2.front() == 'o');
-	assert(sv2.size() == 1);
+	assert(sv1 == "meow");
+	assert(sv2 == "o");
 	assert(sv2.back() == sv2.front());
+	assert(sv2 == sv1.substr(2, 1));
 
 	sv2.clear();
-	// assert(sv2 == sv0);
+	assert(sv2 == sv0);
 
 	sv1 = "meow\0!"_sv;
 	char sb[10];
@@ -74,5 +73,6 @@ int main()
 
 	assert(xlen == 6);
 	assert(s.length() == xlen);
-	assert(s > sb);
+	assert(sv1 == s);
+	assert(sv1 != sb);
 }
