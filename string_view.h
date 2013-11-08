@@ -232,6 +232,34 @@ struct basic_string_view
 		    std::min(n, size() - pos) };
 	}
 
+	size_type find(basic_string_view s, size_type pos = 0) const noexcept
+	{
+		return find(s.data(), pos, s.size());
+	}
+
+	size_type find(CharT const* s, size_type pos, size_type n) const
+	{
+		// avoid overflow
+		if (pos > size() || pos > size() - n)
+			return npos;
+
+		if (n == 0)
+			return pos;
+
+		auto it = std::search(begin() + pos, end(), s, s + n,
+		    traits_eq());
+
+		if (it == end())
+			return npos;
+		else
+			return it - begin();
+	}
+
+	size_type find(CharT const* s, size_type pos = 0) const
+	{
+		return find(s, pos, traits_type::length(s));
+	}
+
 	// N3762 disagreement: not noexcept since C++14
 
 	size_type find(CharT ch, size_type pos = 0) const
@@ -260,7 +288,7 @@ struct basic_string_view
 			return npos;
 
 		auto it = std::find_first_of(begin() + pos, end(), s, s + n,
-		    [](CharT x, CharT y) { return traits_type::eq(x, y); });
+		    traits_eq());
 
 		if (it == end())
 			return npos;
@@ -271,6 +299,11 @@ struct basic_string_view
 	size_type find_first_of(CharT const* s, size_type pos = 0) const
 	{
 		return find_first_of(s, pos, traits_type::length(s));
+	}
+
+	size_type find_first_of(CharT ch, size_type pos = 0) const
+	{
+		return find(ch, pos);
 	}
 
 	friend inline
@@ -287,6 +320,14 @@ struct basic_string_view
 	}
 
 private:
+	struct traits_eq
+	{
+		constexpr bool operator()(CharT x, CharT y) const noexcept
+		{
+			return traits_type::eq(x, y);
+		}
+	};
+
 	iterator it_;
 	size_type sz_;
 };

@@ -80,11 +80,23 @@ int main()
 	assert(sv1.find('?') == string_view::npos);
 	assert(sv1.find('\0', 5) == string_view::npos);
 	assert(sv1.find('\0', 100) == string_view::npos);
+	assert(sv1.find('\0') == sv1.find_first_of('\0'));
 
 	assert(sv1.find_first_of("oe") == 1);
+	assert(sv1.find_first_of("eo") == 1);
 	assert(sv1.find_first_of("oe", 3, 2) == string_view::npos);
 	assert(sv1.find_first_of("oe", 3, 3) == 4);
 	assert(sv1.find_first_of("oe", 100, 2) == string_view::npos);
 	assert(sv1.find_first_of(".?") == string_view::npos);
 	assert(sv1.find_first_of("\0?"_sv) == 4);
+	assert(sv1.find_first_of("", 2, 0) == string_view::npos);
+
+	assert(sv1.find("ow") == 2);
+	assert(sv1.find("wo") == string_view::npos);
+	assert(sv1.find("ow", 3, 2) == string_view::npos);
+	assert(sv1.find("ow", 100, 2) == string_view::npos);
+	assert(sv1.find("ow\0"_sv, 1) == 2);
+	assert(sv1.find("") == 0);
+	assert(sv1.find(""_sv, sv1.length()) == sv1.length());
+	assert(sv1.find(""_sv, sv1.length() + 1) == string_view::npos);
 }
