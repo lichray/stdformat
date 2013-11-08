@@ -232,6 +232,21 @@ struct basic_string_view
 		    std::min(n, size() - pos) };
 	}
 
+	// N3762 disagreement: not noexcept since C++14
+
+	size_type find(CharT ch, size_type pos = 0) const
+	{
+		if (pos >= size())
+			return npos;
+
+		auto p = traits_type::find(data() + pos, size() - pos, ch);
+
+		if (p == nullptr)
+			return npos;
+		else
+			return p - data();
+	}
+
 	friend inline
 	bool operator==(basic_string_view a, basic_string_view b)
 	{
