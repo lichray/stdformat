@@ -3,6 +3,7 @@
 #include <cassert>
 
 using stdex::string_view;
+using namespace stdex::string_literals;
 
 int main()
 {
@@ -28,10 +29,10 @@ int main()
 	static_assert(std::is_nothrow_move_constructible<string_view>{}, "");
 	static_assert(std::is_nothrow_move_assignable<string_view>{}, "");
 
-	constexpr string_view sv;
+	constexpr string_view sv0;
 
-	static_assert(sv.empty(), "");
-	assert(sv.length() == string_view(std::string()).size());
+	static_assert(sv0.empty(), "");
+	assert(sv0.length() == string_view(std::string()).size());
 
 	string_view sv2 = "meow\0!";
 
@@ -64,5 +65,14 @@ int main()
 	assert(sv2.back() == sv2.front());
 
 	sv2.clear();
-	// assert(sv2 == sv);
+	// assert(sv2 == sv0);
+
+	sv1 = "meow\0!"_sv;
+	char sb[10];
+	auto xlen = sv1.copy(sb, sizeof(sb));
+	auto s = std::string(sv1);
+
+	assert(xlen == 6);
+	assert(s.length() == xlen);
+	assert(s > sb);
 }

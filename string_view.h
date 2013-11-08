@@ -206,6 +206,24 @@ struct basic_string_view
 		std::swap(sz_, sv.sz_);
 	}
 
+	template <typename Allocator>
+	explicit operator std::basic_string<CharT, Traits, Allocator>() const
+	{
+		return std::basic_string<CharT, Traits, Allocator>(
+		    data(), size());
+	}
+
+	size_type copy(CharT* s, size_type n, size_type pos = 0) const
+	{
+		if (pos > size())
+			throw std::out_of_range("basic_string_view::copy");
+
+		auto rlen = std::min(n, size() - pos);
+
+		std::copy_n(begin() + pos, rlen, s);
+		return rlen;
+	}
+
 private:
 	iterator it_;
 	size_type sz_;
@@ -222,6 +240,32 @@ using string_view = basic_string_view<char>;
 using wstring_view = basic_string_view<wchar_t>;
 using u16string_view = basic_string_view<char16_t>;
 using u32string_view = basic_string_view<char32_t>;
+
+inline namespace literals {
+inline namespace string_literals {
+
+constexpr string_view operator"" _sv(char const* str, std::size_t len)
+{
+	return string_view(str, len);
+}
+
+constexpr wstring_view operator"" _sv(wchar_t const* str, std::size_t len)
+{
+	return wstring_view(str, len);
+}
+
+constexpr u16string_view operator"" _sv(char16_t const* str, std::size_t len)
+{
+	return u16string_view(str, len);
+}
+
+constexpr u32string_view operator"" _sv(char32_t const* str, std::size_t len)
+{
+	return u32string_view(str, len);
+}
+
+}
+}
 
 }
 
