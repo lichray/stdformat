@@ -252,10 +252,7 @@ struct basic_string_view
 		auto it = std::search(begin() + pos, end(), s, s + n,
 		    traits_eq());
 
-		if (it == end())
-			return npos;
-		else
-			return it - begin();
+		return offset_from_begin(it);
 	}
 
 	size_type find(CharT const* s, size_type pos = 0) const
@@ -293,10 +290,7 @@ struct basic_string_view
 		auto it = std::find_first_of(begin() + pos, end(), s, s + n,
 		    traits_eq());
 
-		if (it == end())
-			return npos;
-		else
-			return it - begin();
+		return offset_from_begin(it);
 	}
 
 	size_type find_first_of(CharT const* s, size_type pos = 0) const
@@ -317,10 +311,7 @@ struct basic_string_view
 		auto it = std::find_if_not(begin() + pos, end(),
 		    std::bind(traits_eq(), ch, _1));
 
-		if (it == end())
-			return npos;
-		else
-			return it - begin();
+		return offset_from_begin(it);
 	}
 
 	friend inline
@@ -344,6 +335,14 @@ private:
 			return traits_type::eq(x, y);
 		}
 	};
+
+	size_type offset_from_begin(iterator it) const
+	{
+		if (it == end())
+			return npos;
+		else
+			return it - begin();
+	}
 
 	iterator it_;
 	size_type sz_;
