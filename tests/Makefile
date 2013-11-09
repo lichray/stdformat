@@ -4,13 +4,15 @@ CXXFLAGS = -std=c++11 -stdlib=libc++ -Wall -g
 CXX      = clang++  
 
 .PHONY : all clean
-all : test_string_view
+all : test_format test_string_view
 clean :
-	rm -f test_string_view test_string_view.o tags
+	rm -f test_format test_format.o
+	rm -f test_string_view test_string_view.o
 
-tags : *.h test_string_view.cc 
-	ctags *.h test_string_view.cc 
-
+test_format : test_format.o
+	${CXX} ${LDFLAGS} -o test_format test_format.o
+test_format.o: test_format.cc ../format.h ../__formatter.h \
+  ../string_view.h
 test_string_view : test_string_view.o
 	${CXX} ${LDFLAGS} -o test_string_view test_string_view.o
 test_string_view.o: test_string_view.cc ../string_view.h
