@@ -303,6 +303,33 @@ struct basic_string_view
 		return find(ch, pos);
 	}
 
+	size_type find_first_not_of(basic_string_view s,
+	    size_type pos = 0) const noexcept
+	{
+		return find_first_not_of(s.data(), pos, s.size());
+	}
+
+	size_type find_first_not_of(CharT const* s, size_type pos,
+	    size_type n) const
+	{
+		if (pos >= size())
+			return npos;
+
+		auto it = std::find_if(begin() + pos, end(),
+		    [=](CharT c)
+		    {
+			return std::none_of(s, s + n,
+			    std::bind(traits_eq(), c, _1));
+		    });
+
+		return offset_from_begin(it);
+	}
+
+	size_type find_first_not_of(CharT const* s, size_type pos = 0) const
+	{
+		return find_first_not_of(s, pos, traits_type::length(s));
+	}
+
 	size_type find_first_not_of(CharT ch, size_type pos = 0) const
 	{
 		if (pos >= size())
