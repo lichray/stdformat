@@ -11,7 +11,7 @@ clean :
 test_format : test_format.o
 	${CXX} ${LDFLAGS} -o test_format test_format.o
 test_format.o: test_format.cc ../format.h ../__formatter.h \
-  ../string_view.h
+  ../string_view.h ../traits_adaptors.h
 test_string_view : test_string_view.o
 	${CXX} ${LDFLAGS} -o test_string_view test_string_view.o
 test_string_view.o: test_string_view.cc ../string_view.h

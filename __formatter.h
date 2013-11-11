@@ -27,11 +27,40 @@
 #define _STDEX___FORMATTER_H
 
 #include "string_view.h"
+#include "traits_adaptors.h"
+
+#include <stdexcept>
 
 namespace stdex {
 
 template <typename T>
 struct formatter;
+
+template <>
+struct formatter<bool>
+{
+	formatter() = default;
+
+	template <typename CharT>
+	formatter(basic_string_view<CharT> spec)
+	{
+		if (spec != "s")
+			throw std::invalid_argument(std::string(spec));
+	}
+};
+
+template <typename T>
+struct formatter<T*>
+{
+	formatter() = default;
+
+	template <typename CharT>
+	formatter(basic_string_view<CharT> spec)
+	{
+		if (spec != "p")
+			throw std::invalid_argument(std::string(spec));
+	}
+};
 
 }
 
