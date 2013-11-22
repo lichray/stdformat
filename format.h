@@ -45,50 +45,78 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 	return buf;
 }
 
+template <typename T, typename V>
+using not_void_or_t = If_t<std::is_void<T>, identity_of<V>, identity_of<T>>;
+
 }
 
-// caveat: This interface does not accept C string.
 template
 <
-    typename CharT,
-    typename Traits = std::char_traits<CharT>,
+    typename Traits = void,
     typename Allocator,
     typename... T
 >
 inline
-auto format(Allocator const& a, basic_string_view<CharT> fmt, T const&... t)
-	-> std::basic_string<CharT, Traits, Allocator>
+auto format(Allocator const& a,
+            basic_string_view<typename Allocator::value_type> fmt,
+            T const&... t)
+	-> std::basic_string
+	<
+	    typename Allocator::value_type,
+	    detail::not_void_or_t
+	    <Traits, std::char_traits<typename Allocator::value_type>>,
+	    Allocator
+	>
 {
-	return detail::vformat<CharT, Traits>(a, fmt,
-	    std::make_tuple(std::cref(t)...));
+	return detail::vformat
+		<
+		    typename Allocator::value_type,
+		    detail::not_void_or_t
+		    <Traits, std::char_traits<typename Allocator::value_type>>
+		>
+		(a, fmt, std::forward_as_tuple(t...));
+}
+
+template <typename Traits, typename... T>
+inline
+auto format(basic_string_view<typename Traits::char_type> fmt, T const&... t)
+	-> std::basic_string
+	<
+	    typename Traits::char_type,
+	    Traits,
+	    std::allocator<typename Traits::char_type>
+	>
+{
+	return format<Traits>(std::allocator<typename Traits::char_type>(),
+	    fmt, t...);
 }
 
 template <typename... T>
 inline
 std::string format(string_view fmt, T const&...t)
 {
-	return format(std::string::allocator_type(), fmt, t...);
+	return format<std::string::traits_type>(fmt, t...);
 }
 
 template <typename... T>
 inline
 std::wstring format(wstring_view fmt, T const&...t)
 {
-	return format(std::wstring::allocator_type(), fmt, t...);
+	return format<std::wstring::traits_type>(fmt, t...);
 }
 
 template <typename... T>
 inline
 std::u16string format(u16string_view fmt, T const&...t)
 {
-	return format(std::u16string::allocator_type(), fmt, t...);
+	return format<std::u16string::traits_type>(fmt, t...);
 }
 
 template <typename... T>
 inline
 std::u32string format(u32string_view fmt, T const&...t)
 {
-	return format(std::u32string::allocator_type(), fmt, t...);
+	return format<std::u32string::traits_type>(fmt, t...);
 }
 
 }
