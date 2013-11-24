@@ -13,7 +13,7 @@ clean :
 test_format : test_format.o
 	${CXX} ${LDFLAGS} -o test_format test_format.o
 test_format.o: test_format.cc ../format.h ../__formatter.h \
-  ../string_view.h ../traits_adaptors.h
+  ../string_view.h ../traits_adaptors.h assertions.h
 test_format_writer : test_format_writer.o
 	${CXX} ${LDFLAGS} -o test_format_writer test_format_writer.o
 test_format_writer.o: test_format_writer.cc ../__formatter.h \

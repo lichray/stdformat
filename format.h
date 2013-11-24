@@ -35,12 +35,66 @@ namespace stdex {
 
 namespace detail {
 
+template <typename CharT, size_t N>
+inline
+auto swiden(char const (&s)[N])
+	-> std::basic_string<CharT>
+{
+	return { s, s + N - 1 };
+}
+
 template <typename CharT, typename Traits, typename Allocator, typename Tuple>
 inline
 auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 	-> std::basic_string<CharT, Traits, Allocator>
 {
+	using spec_type = basic_string_view<CharT>;
+
+	static const auto curly_braces = swiden<CharT>("{}");
+
 	std::basic_string<CharT, Traits, Allocator> buf(a);
+
+	while (1)
+	{
+		auto off = fmt.find_first_of(curly_braces);
+
+		if (off == spec_type::npos)
+		{
+			buf.append(fmt.data(), fmt.size());
+			break;
+		}
+		else
+		{
+			buf.append(fmt.data(), off);
+		}
+
+		auto ch = fmt[off];
+		fmt.remove_prefix(off + 1);
+
+		if (ch == '}')
+		{
+			if (fmt.empty() or fmt.front() != '}')
+				throw std::invalid_argument(
+				    "Single '}' encountered in format string"
+				);
+
+			buf.push_back('}');
+			fmt.remove_prefix(1);
+			continue;
+		}
+
+		if (fmt.empty())
+			throw std::invalid_argument(
+			    "Single '{' encountered in format string"
+			);
+
+		if (fmt.front() == '{')
+		{
+			buf.push_back('{');
+			fmt.remove_prefix(1);
+			continue;
+		}
+	}
 
 	return buf;
 }
