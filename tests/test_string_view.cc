@@ -1,6 +1,6 @@
 #include "../string_view.h"
 
-#include <cassert>
+#include "assertions.h"
 
 using stdex::string_view;
 using namespace stdex::string_literals;
@@ -43,15 +43,7 @@ int main()
 	// N3762 violation: &front() is ill-formed.
 	assert(sv2.data() == &*sv2.begin());
 
-	try
-	{
-		sv2.at(4);
-		assert(0);
-	}
-	catch (std::exception&)
-	{
-		assert(1);
-	}
+	assert_throw(std::out_of_range, sv2.at(4));
 
 	auto sv1 = sv2;
 	sv1.remove_prefix(2);

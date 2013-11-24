@@ -20,4 +20,4 @@ test_format_writer.o: test_format_writer.cc ../__formatter.h \
   ../string_view.h ../traits_adaptors.h
 test_string_view : test_string_view.o
 	${CXX} ${LDFLAGS} -o test_string_view test_string_view.o
-test_string_view.o: test_string_view.cc ../string_view.h
+test_string_view.o: test_string_view.cc ../string_view.h assertions.h
