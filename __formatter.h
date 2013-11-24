@@ -30,8 +30,83 @@
 #include "traits_adaptors.h"
 
 #include <stdexcept>
+#include <cassert>
 
 namespace stdex {
+
+template <typename StringType, typename Codecvt = void>
+struct format_writer
+{
+	using char_type = typename StringType::value_type;
+	using traits_type = typename StringType::traits_type;
+
+#ifndef _STDEX_TESTING
+
+private:
+	template
+	<
+	    typename CharT, typename Traits, typename Allocator,
+	    typename Tuple
+	>
+	friend
+	auto vformat(Allocator const&, basic_string_view<CharT>, Tuple)
+		-> std::basic_string<CharT, Traits, Allocator>;
+
+#endif
+
+	format_writer(StringType& buf, bool padding_left, int width) :
+		buf_(buf), old_sz_(buf_.size()),
+		padding_left_(padding_left), width_(width)
+	{
+		assert(width_ >= 0);
+	}
+
+public:
+	template <typename CharT>
+	auto send(CharT ch)
+		-> If_t<std::is_same<CharT, char_type>>
+	{
+		buf_.push_back(ch);
+	}
+
+	void send(basic_string_view<char_type, traits_type> s)
+	{
+		buf_.append(s.data(), s.size());
+	}
+
+	void content_width_will_be(int w)
+	{
+		assert(old_sz_ == buf_.size());
+
+		if (padding_left_)
+		{
+			if (w < width_)
+				buf_.append(width_ - w, ' ');
+			width_ = 0;
+		}
+	}
+
+	void align_content()
+	{
+		auto w = buf_.size() - old_sz_;
+
+		if (w < width_)
+		{
+			if (padding_left_)
+				buf_.insert(old_sz_, width_ - w, ' ');
+			else
+				buf_.append(width_ - w, ' ');
+		}
+
+		width_ = 0;
+	}
+
+private:
+	StringType&			buf_;
+	typename StringType::size_type	old_sz_;
+	bool 				padding_left_;
+	int				width_;
+};
 
 template <typename T>
 struct formatter;
