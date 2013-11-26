@@ -22,6 +22,14 @@ int main()
 		assert(ts == "hello, world");
 	}
 
+	{
+		stdex::format_writer<std::string> w(ts);
+		w.content_width_will_be(1);
+		w.send('!');
+		w.align_content();
+		assert(ts == "hello, world!");
+	}
+
 	ts.erase();
 
 	{

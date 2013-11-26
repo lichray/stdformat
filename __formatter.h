@@ -54,6 +54,10 @@ private:
 
 #endif
 
+	format_writer(StringType& buf) noexcept :
+		format_writer(buf, false, 0)
+	{}
+
 	format_writer(StringType& buf, bool padding_left, int width) :
 		buf_(buf), old_sz_(buf_.size()),
 		padding_left_(padding_left), width_(width)
