@@ -60,6 +60,39 @@ int parse_int(basic_string_view<CharT>& s)
 	return n;
 }
 
+template <int N>
+struct or_shift
+{
+	template <typename Int>
+	static constexpr
+	auto apply(Int n) -> Int
+	{
+		return or_shift<N / 2>::apply(n | (n >> N));
+	}
+};
+
+template <>
+struct or_shift<1>
+{
+	template <typename Int>
+	static constexpr
+	auto apply(Int n) -> Int
+	{
+		return n | (n >> 1);
+	}
+};
+
+template <typename Int, typename R = typename std::make_unsigned<Int>::type>
+constexpr
+auto pow2_roundup(Int n) -> R
+{
+	return or_shift
+	    <
+		std::numeric_limits<R>::digits / 2
+	    >
+	    ::apply(R(n) - 1) + 1;
+}
+
 enum class adjustment
 {
 	unspecified,
@@ -176,6 +209,8 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 	string_type buf(a);
 	int arg_index = 0;
 	bool sequential;
+
+	buf.reserve(pow2_roundup(fmt.size()));
 
 	while (1)
 	{
