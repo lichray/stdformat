@@ -35,14 +35,6 @@ namespace stdex {
 
 namespace detail {
 
-template <typename CharT, size_t N>
-inline
-auto swiden(char const (&s)[N])
-	-> std::basic_string<CharT>
-{
-	return { s, s + N - 1 };
-}
-
 template <typename CharT>
 inline
 bool leads_digits(CharT ch)
@@ -174,15 +166,13 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 	using string_type = std::basic_string<CharT, Traits, Allocator>;
 	using writer_type = format_writer<string_type>;
 
-	static const auto curly_braces = swiden<CharT>("{}");
-
 	string_type buf(a);
 	int arg_index = 0;
 	bool sequential;
 
 	while (1)
 	{
-		auto off = fmt.find_first_of(curly_braces);
+		auto off = fmt.find_first_of("{}");
 
 		if (off == spec_type::npos)
 		{
