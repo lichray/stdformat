@@ -45,6 +45,9 @@ template <typename Tuple, typename Writer>
 inline
 void write_arg_at(int, Tuple, Writer);
 
+template <int, int, int, typename>
+struct write_arg_at_impl;
+
 }
 
 template <typename StringType, typename Codecvt = void>
@@ -52,6 +55,7 @@ struct format_writer
 {
 	using char_type = typename StringType::value_type;
 	using traits_type = typename StringType::traits_type;
+	using size_type = typename StringType::size_type;
 
 #ifndef _STDEX_TESTING
 
@@ -68,12 +72,12 @@ private:
 #endif
 
 	format_writer(StringType& buf) noexcept :
-		format_writer(buf, false, 0)
+		format_writer(buf, 0)
 	{}
 
-	format_writer(StringType& buf, bool padding_left, int width) :
+	format_writer(StringType& buf, int width, bool padding_left = false) :
 		buf_(buf), old_sz_(buf_.size()),
-		padding_left_(padding_left), width_(width)
+		width_(width), padding_left_(padding_left)
 	{
 		assert(width_ >= 0);
 	}
@@ -84,6 +88,13 @@ public:
 		-> If_t<std::is_same<CharT, char_type>>
 	{
 		buf_.push_back(ch);
+	}
+
+	template <typename CharT>
+	auto send(size_type n, CharT ch)
+		-> If_t<std::is_same<CharT, char_type>>
+	{
+		buf_.append(n, ch);
 	}
 
 	void send(basic_string_view<char_type, traits_type> s)
@@ -107,6 +118,10 @@ private:
 	friend
 	void detail::write_arg_at(int, Tuple, Writer);
 
+	template <int, int, int, typename>
+	friend
+	struct detail::write_arg_at_impl;
+
 #endif
 	void align_content()
 	{
@@ -121,11 +136,16 @@ private:
 		}
 	}
 
+	void padding_left()
+	{
+		padding_left_ = true;
+	}
+
 private:
-	StringType&			buf_;
-	typename StringType::size_type	old_sz_;
-	bool 				padding_left_;
-	int				width_;
+	StringType&	buf_;
+	size_type	old_sz_;
+	int		width_;
+	bool 		padding_left_;
 };
 
 template <typename T>
