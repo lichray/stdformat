@@ -41,9 +41,9 @@ inline
 auto vformat(Allocator const&, basic_string_view<CharT>, Tuple)
 	-> std::basic_string<CharT, Traits, Allocator>;
 
-template <typename Tuple, typename Writer>
+template <typename Tuple, typename Writer, typename... Opts>
 inline
-void write_arg_at(int, Tuple, Writer);
+void write_arg_at(int, Tuple, Writer, Opts...);
 
 template <int, int, int, typename>
 struct write_arg_at_impl;
@@ -114,9 +114,9 @@ public:
 
 private:
 
-	template <typename Tuple, typename Writer>
+	template <typename Tuple, typename Writer, typename... Opts>
 	friend
-	void detail::write_arg_at(int, Tuple, Writer);
+	void detail::write_arg_at(int, Tuple, Writer, Opts...);
 
 	template <int, int, int, typename>
 	friend
@@ -205,6 +205,64 @@ struct formatter<char16_t> : detail::char_formatter<char16_t> {};
 
 template <>
 struct formatter<char32_t> : detail::char_formatter<char32_t> {};
+
+template <typename CharT, typename Traits>
+struct formatter<basic_string_view<CharT, Traits>>
+{
+	typedef void default_left_justified;
+
+	formatter() = default;
+
+	explicit formatter(basic_string_view<CharT> spec)
+	{
+		if (spec != "s")
+			throw std::invalid_argument(std::string(spec));
+	}
+
+	template <typename Writer>
+	void output(Writer w, basic_string_view<CharT, Traits> s)
+	{
+		w.content_width_will_be(s.size());
+		w.send(s);
+	}
+};
+
+template <typename CharT, typename Traits, typename Allocator>
+struct formatter<std::basic_string<CharT, Traits, Allocator>>
+	: formatter<basic_string_view<CharT, Traits>>
+{};
+
+template <>
+struct formatter<char const*>
+	: formatter<basic_string_view<char, std::char_traits<char>>>
+{};
+
+template <>
+struct formatter<wchar_t const*>
+	: formatter<basic_string_view<wchar_t, std::char_traits<wchar_t>>>
+{};
+
+template <>
+struct formatter<char16_t const*>
+	: formatter<basic_string_view<char16_t, std::char_traits<char16_t>>>
+{};
+
+template <>
+struct formatter<char32_t const*>
+	: formatter<basic_string_view<char32_t, std::char_traits<char32_t>>>
+{};
+
+template <>
+struct formatter<char*> : formatter<char const*> {};
+
+template <>
+struct formatter<wchar_t*> : formatter<wchar_t const*> {};
+
+template <>
+struct formatter<char16_t*> : formatter<char16_t const*> {};
+
+template <>
+struct formatter<char32_t*> : formatter<char32_t const*> {};
 
 template <typename T>
 struct formatter<T*>

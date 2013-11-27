@@ -45,6 +45,13 @@ auto swiden(char const (&s)[N])
 
 template <typename CharT>
 inline
+bool leads_digits(CharT ch)
+{
+	return '0' < ch and ch <= '9';
+}
+
+template <typename CharT>
+inline
 int parse_int(basic_string_view<CharT>& s)
 {
 	int n = 0;
@@ -61,14 +68,21 @@ int parse_int(basic_string_view<CharT>& s)
 	return n;
 }
 
+enum class adjustment
+{
+	unspecified,
+	left,
+	right,
+};
+
 template <int Low, int High, int Mid = (Low + High) / 2, typename = void>
 struct write_arg_at_impl;
 
 template <int Low, int High, int Mid>
 struct write_arg_at_impl<Low, High, Mid, If_ct<(Low > High)>>
 {
-	template <typename Tuple, typename Writer>
-	static void apply(int n, Tuple tp, Writer w)
+	template <typename Tuple, typename Writer, typename... Opts>
+	static void apply(int n, Tuple tp, Writer w, Opts... o)
 	{
 		throw std::out_of_range
 		{
@@ -80,46 +94,75 @@ struct write_arg_at_impl<Low, High, Mid, If_ct<(Low > High)>>
 template <int Mid>
 struct write_arg_at_impl<Mid, Mid, Mid, void>
 {
-	template
-	<
-	    typename Tuple, typename Writer,
-	    typename T = typename std::decay
-	    <
-		typename std::tuple_element<Mid - 1, Tuple>::type
-	    >
-	    ::type
-	>
-	static void apply(int n, Tuple tp, Writer w)
+	template <typename Tuple, typename Writer, typename... Opts>
+	static void apply(int n, Tuple tp, Writer w, Opts... o)
 	{
+		using T = typename std::decay
+		    <
+			typename std::tuple_element<Mid - 1, Tuple>::type
+		    >
+		    ::type;
+
 		if (n != Mid)
 			throw std::out_of_range
 			{
 			    "tuple index out of range"
 			};
 
-		formatter<T>().output(w, std::get<Mid - 1>(tp));
+		do_format<Mid - 1, T>(w, tp, o...);
+	}
+
+private:
+
+	template <int I, typename T, typename Writer, typename Tuple>
+	static void do_format(Writer w, Tuple tp)
+	{
+		formatter<T>().output(w, std::get<I>(tp));
+	}
+
+	template <int I, typename T, typename Writer, typename Tuple>
+	static void do_format(Writer w, Tuple tp, adjustment adj, ...)
+	{
+
+		decide_justification<T>(w, adj, 0);
+		do_format<I, T>(w, tp);
+	}
+
+	template <typename T, typename Writer>
+	static void decide_justification(Writer& w, adjustment adj, ...)
+	{
+		if (adj != adjustment::left)
+			w.padding_left();
+	}
+
+	template <typename T, typename Writer>
+	static void decide_justification(Writer& w, adjustment adj,
+	    typename formatter<T>::default_left_justified* = 0)
+	{
+		if (adj == adjustment::right)
+			w.padding_left();
 	}
 };
 
 template <int Low, int High, int Mid>
 struct write_arg_at_impl<Low, High, Mid, If_ct<(Low < High)>>
 {
-	template <typename Tuple, typename Writer>
-	static void apply(int n, Tuple tp, Writer w)
+	template <typename Tuple, typename Writer, typename... Opts>
+	static void apply(int n, Tuple tp, Writer w, Opts... o)
 	{
 		if (n < Mid)
-			write_arg_at_impl<Low, Mid - 1>::apply(n, tp, w);
+			write_arg_at_impl<Low, Mid - 1>::apply(n, tp, w, o...);
 		else if (n == Mid)
-			write_arg_at_impl<Mid, Mid>::apply(n, tp, w);
+			write_arg_at_impl<Mid, Mid>::apply(n, tp, w, o...);
 		else
-			write_arg_at_impl<Mid + 1, High>::apply(n, tp, w);
+			write_arg_at_impl<Mid + 1, High>::apply(n, tp, w, o...);
 	}
 };
 
-template <typename Tuple, typename Writer>
-void write_arg_at(int n, Tuple tp, Writer w)
+template <typename Tuple, typename Writer, typename... Opts>
+void write_arg_at(int n, Tuple tp, Writer w, Opts... o)
 {
-	write_arg_at_impl<1, std::tuple_size<Tuple>{}>::apply(n, tp, w);
+	write_arg_at_impl<1, std::tuple_size<Tuple>{}>::apply(n, tp, w, o...);
 	w.align_content();
 }
 
@@ -180,9 +223,7 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 			continue;
 		}
 
-		ch = fmt.front();
-
-		if ('0' < ch && ch <= '9')
+		if (leads_digits(fmt.front()))
 		{
 			if (arg_index == 0)
 				sequential = false;
@@ -220,9 +261,54 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 		ch = fmt.front();
 		fmt.remove_prefix(1);
 
-		if (ch == '}')
+		if (ch == ':')
+		{
+			adjustment adj = adjustment::unspecified;
+			int width = 0;
+
+			if (fmt.front() == '<')
+			{
+				adj = adjustment::left;
+				fmt.remove_prefix(1);
+			}
+			else if (fmt.front() == '>')
+			{
+				adj = adjustment::right;
+				fmt.remove_prefix(1);
+			}
+
+			if (leads_digits(fmt.front()))
+				width = parse_int(fmt);
+
+			auto off = fmt.find('}');
+
+			if (off == spec_type::npos)
+				throw std::invalid_argument
+				{
+				    "unmatched '{' in format"
+				};
+
+			else if (off == 0)
+				write_arg_at(arg_index, tp,
+				    writer_type(buf, width), adj);
+
+			else
+				assert(!"not implemented");
+
+			fmt.remove_prefix(off + 1);
+		}
+
+		else if (ch == '}')
 		{
 			write_arg_at(arg_index, tp, writer_type(buf));
+		}
+
+		else
+		{
+			throw std::invalid_argument
+			{
+			    "expecting ':' or '}'"
+			};
 		}
 	}
 
