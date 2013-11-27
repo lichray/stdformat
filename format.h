@@ -363,28 +363,28 @@ auto format(basic_string_view<typename Traits::char_type> fmt, T const&... t)
 
 template <typename... T>
 inline
-std::string format(string_view fmt, T const&...t)
+std::string format(string_view fmt, T const&... t)
 {
 	return format<std::string::traits_type>(fmt, t...);
 }
 
 template <typename... T>
 inline
-std::wstring format(wstring_view fmt, T const&...t)
+std::wstring format(wstring_view fmt, T const&... t)
 {
 	return format<std::wstring::traits_type>(fmt, t...);
 }
 
 template <typename... T>
 inline
-std::u16string format(u16string_view fmt, T const&...t)
+std::u16string format(u16string_view fmt, T const&... t)
 {
 	return format<std::u16string::traits_type>(fmt, t...);
 }
 
 template <typename... T>
 inline
-std::u32string format(u32string_view fmt, T const&...t)
+std::u32string format(u32string_view fmt, T const&... t)
 {
 	return format<std::u32string::traits_type>(fmt, t...);
 }
