@@ -117,7 +117,6 @@ struct write_arg_at_impl<Low, High, Mid, If_ct<(Low < High)>>
 };
 
 template <typename Tuple, typename Writer>
-inline
 void write_arg_at(int n, Tuple tp, Writer w)
 {
 	write_arg_at_impl<1, std::tuple_size<Tuple>{}>::apply(n, tp, w);
@@ -125,7 +124,6 @@ void write_arg_at(int n, Tuple tp, Writer w)
 }
 
 template <typename CharT, typename Traits, typename Allocator, typename Tuple>
-inline
 auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 	-> std::basic_string<CharT, Traits, Allocator>
 {
