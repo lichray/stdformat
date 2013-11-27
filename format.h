@@ -74,7 +74,8 @@ template <int Low, int High, int Mid>
 struct write_arg_at_impl<Low, High, Mid, If_ct<(Low > High)>>
 {
 	template <typename Tuple, typename Writer, typename... Opts>
-	static void apply(int n, Tuple tp, Writer w, Opts... o)
+	static
+	void apply(int n, Tuple tp, Writer w, Opts... o)
 	{
 		throw std::out_of_range
 		{
@@ -87,7 +88,8 @@ template <int Mid>
 struct write_arg_at_impl<Mid, Mid, Mid, void>
 {
 	template <typename Tuple, typename Writer, typename... Opts>
-	static void apply(int n, Tuple tp, Writer w, Opts... o)
+	static
+	void apply(int n, Tuple tp, Writer w, Opts... o)
 	{
 		using T = typename std::decay
 		    <
@@ -107,13 +109,15 @@ struct write_arg_at_impl<Mid, Mid, Mid, void>
 private:
 
 	template <int I, typename T, typename Writer, typename Tuple>
-	static void do_format(Writer w, Tuple tp)
+	static
+	void do_format(Writer w, Tuple tp)
 	{
 		formatter<T>().output(w, std::get<I>(tp));
 	}
 
 	template <int I, typename T, typename Writer, typename Tuple>
-	static void do_format(Writer w, Tuple tp, adjustment adj, ...)
+	static
+	void do_format(Writer w, Tuple tp, adjustment adj, ...)
 	{
 
 		decide_justification<T>(w, adj, 0);
@@ -121,14 +125,16 @@ private:
 	}
 
 	template <typename T, typename Writer>
-	static void decide_justification(Writer& w, adjustment adj, ...)
+	static
+	void decide_justification(Writer& w, adjustment adj, ...)
 	{
 		if (adj != adjustment::left)
 			w.padding_left();
 	}
 
 	template <typename T, typename Writer>
-	static void decide_justification(Writer& w, adjustment adj,
+	static
+	void decide_justification(Writer& w, adjustment adj,
 	    typename formatter<T>::default_left_justified* = 0)
 	{
 		if (adj == adjustment::right)
@@ -140,7 +146,8 @@ template <int Low, int High, int Mid>
 struct write_arg_at_impl<Low, High, Mid, If_ct<(Low < High)>>
 {
 	template <typename Tuple, typename Writer, typename... Opts>
-	static void apply(int n, Tuple tp, Writer w, Opts... o)
+	static
+	void apply(int n, Tuple tp, Writer w, Opts... o)
 	{
 		if (n < Mid)
 			write_arg_at_impl<Low, Mid - 1>::apply(n, tp, w, o...);
