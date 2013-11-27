@@ -141,11 +141,14 @@ struct identity_of
 	using type = T;
 };
 
-template <typename V, typename T = identity_of<void>, typename... U>
+template <typename V, typename T, typename... U>
 struct If : detail::lazy_conditional_c<V::value, T, U...> {};
 
 template <typename V, typename T = identity_of<void>, typename... U>
 using If_t = typename If<V, T, U...>::type;
+
+template <bool V, typename T = identity_of<void>, typename... U>
+using If_ct = typename detail::lazy_conditional_c<V, T, U...>::type;
 
 }
 

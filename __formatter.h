@@ -34,6 +34,15 @@
 
 namespace stdex {
 
+namespace detail {
+
+template <typename CharT, typename Traits, typename Allocator, typename Tuple>
+inline
+auto vformat(Allocator const&, basic_string_view<CharT>, Tuple)
+	-> std::basic_string<CharT, Traits, Allocator>;
+
+}
+
 template <typename StringType, typename Codecvt = void>
 struct format_writer
 {
@@ -49,7 +58,7 @@ private:
 	    typename Tuple
 	>
 	friend
-	auto vformat(Allocator const&, basic_string_view<CharT>, Tuple)
+	auto detail::vformat(Allocator const&, basic_string_view<CharT>, Tuple)
 		-> std::basic_string<CharT, Traits, Allocator>;
 
 #endif
@@ -121,12 +130,56 @@ struct formatter<bool>
 	formatter() = default;
 
 	template <typename CharT>
-	formatter(basic_string_view<CharT> spec)
+	explicit formatter(basic_string_view<CharT> spec)
 	{
 		if (spec != "s")
 			throw std::invalid_argument(std::string(spec));
 	}
+
+	template <typename Writer>
+	void output(Writer w, bool v)
+	{
+		w.content_width_will_be(v ? 4 : 5);
+		w.send(v ? "true" : "false");
+		w.align_content();
+	}
 };
+
+namespace detail {
+
+template <typename CharT>
+struct char_formatter
+{
+	char_formatter() = default;
+
+	explicit char_formatter(basic_string_view<CharT> spec)
+	{
+		if (spec != "c")
+			throw std::invalid_argument(std::string(spec));
+	}
+
+	template <typename Writer>
+	void output(Writer w, CharT ch)
+	{
+		w.content_width_will_be(1);
+		w.send(ch);
+		w.align_content();
+	}
+};
+
+}
+
+template <>
+struct formatter<char> : detail::char_formatter<char> {};
+
+template <>
+struct formatter<wchar_t> : detail::char_formatter<wchar_t> {};
+
+template <>
+struct formatter<char16_t> : detail::char_formatter<char16_t> {};
+
+template <>
+struct formatter<char32_t> : detail::char_formatter<char32_t> {};
 
 template <typename T>
 struct formatter<T*>
@@ -134,7 +187,7 @@ struct formatter<T*>
 	formatter() = default;
 
 	template <typename CharT>
-	formatter(basic_string_view<CharT> spec)
+	explicit formatter(basic_string_view<CharT> spec)
 	{
 		if (spec != "p")
 			throw std::invalid_argument(std::string(spec));
