@@ -70,9 +70,10 @@ struct write_arg_at_impl<Low, High, Mid, If_ct<(Low > High)>>
 	template <typename Tuple, typename Writer>
 	static void apply(int n, Tuple tp, Writer w)
 	{
-		throw std::out_of_range(
+		throw std::out_of_range
+		{
 		    "tuple index out of range"
-		);
+		};
 	}
 };
 
@@ -91,9 +92,10 @@ struct write_arg_at_impl<Mid, Mid, Mid, void>
 	static void apply(int n, Tuple tp, Writer w)
 	{
 		if (n != Mid)
-			throw std::out_of_range(
+			throw std::out_of_range
+			{
 			    "tuple index out of range"
-			);
+			};
 
 		formatter<T>().output(w, std::get<Mid - 1>(tp));
 	}
@@ -156,9 +158,10 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 		if (ch == '}')
 		{
 			if (fmt.empty() or fmt.front() != '}')
-				throw std::invalid_argument(
+				throw std::invalid_argument
+				{
 				    "Single '}' encountered in format string"
-				);
+				};
 
 			buf.push_back('}');
 			fmt.remove_prefix(1);
@@ -166,9 +169,10 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 		}
 
 		if (fmt.empty())
-			throw std::invalid_argument(
+			throw std::invalid_argument
+			{
 			    "Single '{' encountered in format string"
-			);
+			};
 
 		if (fmt.front() == '{')
 		{
@@ -185,10 +189,11 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 				sequential = false;
 
 			else if (sequential)
-				throw std::invalid_argument(
+				throw std::invalid_argument
+				{
 				    "cannot switch from automatic field "
 				    "numbering to manual field specification"
-				);
+				};
 
 			arg_index = parse_int(fmt);
 		}
@@ -198,18 +203,20 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 				sequential = true;
 
 			else if (not sequential)
-				throw std::invalid_argument(
+				throw std::invalid_argument
+				{
 				    "cannot switch from manual field "
 				    "specification to automatic field numbering"
-				);
+				};
 
 			++arg_index;
 		}
 
 		if (fmt.empty())
-			throw std::invalid_argument(
+			throw std::invalid_argument
+			{
 			    "unmatched '{' in format"
-			);
+			};
 
 		ch = fmt.front();
 		fmt.remove_prefix(1);
