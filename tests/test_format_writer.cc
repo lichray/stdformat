@@ -44,9 +44,6 @@ int main()
 		w2.send("world");
 		w2.align_content();
 		assert(ts == "hello,     world");
-
-		w2.align_content();
-		assert(ts == "hello,     world");
 	}
 
 	ts.erase();

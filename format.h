@@ -121,6 +121,7 @@ inline
 void write_arg_at(int n, Tuple tp, Writer w)
 {
 	write_arg_at_impl<1, std::tuple_size<Tuple>{}>::apply(n, tp, w);
+	w.align_content();
 }
 
 template <typename CharT, typename Traits, typename Allocator, typename Tuple>

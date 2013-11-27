@@ -41,6 +41,10 @@ inline
 auto vformat(Allocator const&, basic_string_view<CharT>, Tuple)
 	-> std::basic_string<CharT, Traits, Allocator>;
 
+template <typename Tuple, typename Writer>
+inline
+void write_arg_at(int, Tuple, Writer);
+
 }
 
 template <typename StringType, typename Codecvt = void>
@@ -91,14 +95,19 @@ public:
 	{
 		assert(old_sz_ == buf_.size());
 
-		if (padding_left_)
-		{
-			if (w < width_)
-				buf_.append(width_ - w, ' ');
-			width_ = 0;
-		}
+		if (padding_left_ and w < width_)
+			buf_.append(width_ - w, ' ');
 	}
 
+#ifndef _STDEX_TESTING
+
+private:
+
+	template <typename Tuple, typename Writer>
+	friend
+	void detail::write_arg_at(int, Tuple, Writer);
+
+#endif
 	void align_content()
 	{
 		auto w = buf_.size() - old_sz_;
@@ -110,8 +119,6 @@ public:
 			else
 				buf_.append(width_ - w, ' ');
 		}
-
-		width_ = 0;
 	}
 
 private:
@@ -141,7 +148,6 @@ struct formatter<bool>
 	{
 		w.content_width_will_be(v ? 4 : 5);
 		w.send(v ? "true" : "false");
-		w.align_content();
 	}
 };
 
@@ -163,7 +169,6 @@ struct char_formatter
 	{
 		w.content_width_will_be(1);
 		w.send(ch);
-		w.align_content();
 	}
 };
 
