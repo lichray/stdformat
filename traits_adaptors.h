@@ -30,7 +30,71 @@
 
 namespace stdex {
 
+template <template <typename> class F, template <typename> class... Fs>
+struct composed
+{
+	template <typename T>
+	using call = F
+		<
+		    typename composed<Fs...>::template call<T>::type
+		>;
+
+	template <typename T, typename... Ts>
+	using apply = typename call<T>::template apply<Ts...>;
+};
+
+template <template <typename> class F, template <typename> class G>
+struct composed<F, G>
+{
+	template <typename T>
+	using call = F
+		<
+		    typename G<T>::type
+		>;
+
+	template <typename T, typename... Ts>
+	using apply = typename call<T>::template apply<Ts...>;
+};
+
 namespace detail {
+
+template <int N, template <typename...> class F, typename... As>
+struct currying
+{
+	template <typename T>
+	using call = currying<N - 1, F, As..., T>;
+
+	template <typename... Ts>
+	using apply = F<As..., Ts...>;
+};
+
+template <template <typename...> class F, typename... As>
+struct currying<0, F, As...> : F<As...>
+{
+	// alias does not work; might be a compiler bug
+	template <typename... Ts>
+	struct apply : F<As..., Ts...> {};
+};
+
+template <int N, typename F, typename T2>
+struct bind
+{
+	template <typename T1>
+	using call = bind<N - 1, bind<2, F, T1>, T2>;
+
+	template <typename T, typename... Ts>
+	using apply = typename call<T>::template apply<Ts...>;
+};
+
+template <typename F, typename T2>
+struct bind<2, F, T2>
+{
+	template <typename T1>
+	using call = typename F::template call<T1>::template call<T2>;
+
+	template <typename T, typename... Ts>
+	using apply = typename call<T>::template apply<Ts...>;
+};
 
 template <bool, typename T, typename... U>
 struct lazy_conditional_c
@@ -58,6 +122,19 @@ struct lazy_conditional_c<false, T, U>
 };
 
 }
+
+template <template <typename...> class F, int N = 2>
+using curried = detail::currying<N, F>;
+
+template <typename F, int N = 2>
+struct flipped
+{
+	template <typename T>
+	using call = detail::bind<N, F, T>;
+
+	template <typename T, typename... Ts>
+	using apply = typename call<T>::template apply<Ts...>;
+};
 
 template <bool V>
 using bool_constant = std::integral_constant<bool, V>;

@@ -72,6 +72,100 @@ auto pow2_roundup(Int n) -> R
 template <typename T, typename V>
 using not_void_or_t = If_t<std::is_void<T>, identity_of<V>, identity_of<T>>;
 
+template <typename From, typename To, typename = void>
+struct is_nonarrow_convertible_impl : std::is_convertible<From, To> {};
+
+template <>
+struct is_nonarrow_convertible_impl<long double, double> : std::false_type {};
+
+template <>
+struct is_nonarrow_convertible_impl<long double, float> : std::false_type {};
+
+template <>
+struct is_nonarrow_convertible_impl<double, float> : std::false_type {};
+
+template <typename T, typename = void>
+struct is_unscoped_enum : std::false_type {};
+
+template <typename T>
+struct is_unscoped_enum<T, If_t<std::is_enum<T>>> :
+	composed
+	<
+	    curried<std::is_convertible>::call<T>::template call,
+	    std::underlying_type
+	>
+	::template call<T>
+{};
+
+template <typename From, typename To>
+struct is_nonarrow_convertible_impl<From, To,
+    If_t
+    <
+	and_also
+	<
+	    std::is_floating_point<From>,
+	    std::is_integral<To>
+	>
+    >> : std::false_type
+{};
+
+template <typename From, typename To>
+struct is_nonarrow_convertible_impl<From, To,
+    If_t
+    <
+	and_also
+	<
+	    either<std::is_integral, std::is_enum>::call<From>,
+	    std::is_floating_point<To>
+	>
+    >> : std::false_type
+{};
+
+template <typename T, typename V>
+struct is_representable : bool_constant
+	<
+	    (std::numeric_limits<T>::min() >= std::numeric_limits<V>::min() and
+	     std::numeric_limits<T>::max() <= std::numeric_limits<V>::max())
+	>
+{};
+
+template <typename From, typename To>
+struct is_nonarrow_convertible_impl<From, To,
+    If_t
+    <
+	and_also
+	<
+	    std::is_integral<From>,
+	    std::is_integral<To>
+	>
+    >> : is_representable<From, To>
+{};
+
+template <typename From, typename To>
+struct is_nonarrow_convertible_impl<From, To,
+    If_t
+    <
+	and_also
+	<
+	    is_unscoped_enum<From>,
+	    std::is_integral<To>
+	>
+    >> : composed
+	<
+	    curried<is_representable>::call,
+	    std::underlying_type
+	>
+	::apply<From, To>
+{};
+
+template <typename From, typename To>
+struct is_nonarrow_convertible : is_nonarrow_convertible_impl
+	<
+	    typename std::remove_cv<From>::type,
+	    typename std::remove_cv<To>::type
+	>
+{};
+
 }
 
 }
