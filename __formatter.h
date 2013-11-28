@@ -42,10 +42,6 @@ inline
 auto vformat(Allocator const&, basic_string_view<CharT>, Tuple)
 	-> std::basic_string<CharT, Traits, Allocator>;
 
-template <typename Tuple, typename Writer, typename... Opts>
-inline
-void write_arg_at(int, Tuple, Writer, Opts...);
-
 template <int, int, int, typename>
 struct write_arg_at_impl;
 
@@ -114,17 +110,12 @@ public:
 #ifndef _STDEX_TESTING
 
 private:
-
-	template <typename Tuple, typename Writer, typename... Opts>
-	friend
-	void detail::write_arg_at(int, Tuple, Writer, Opts...);
-
 	template <int, int, int, typename>
 	friend
 	struct detail::write_arg_at_impl;
 
 #endif
-	void align_content()
+	void justify_content()
 	{
 		auto w = buf_.size() - old_sz_;
 

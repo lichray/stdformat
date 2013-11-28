@@ -155,6 +155,7 @@ private:
 
 		decide_justification<T>(w, adj, 0);
 		do_format<I, T>(w, tp);
+		w.justify_content();
 	}
 
 	template <typename T, typename Writer>
@@ -192,10 +193,10 @@ struct write_arg_at_impl<Low, High, Mid, If_ct<(Low < High)>>
 };
 
 template <typename Tuple, typename Writer, typename... Opts>
+inline
 void write_arg_at(int n, Tuple tp, Writer w, Opts... o)
 {
 	write_arg_at_impl<1, std::tuple_size<Tuple>{}>::apply(n, tp, w, o...);
-	w.align_content();
 }
 
 template <typename CharT, typename Traits, typename Allocator, typename Tuple>
