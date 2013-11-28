@@ -29,7 +29,6 @@
 #include "string_view.h"
 #include "traits_adaptors.h"
 
-#include <limits>
 #include <stdexcept>
 #include <cassert>
 

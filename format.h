@@ -27,6 +27,7 @@
 #define _STDEX_FORMAT_H
 
 #include "__formatter.h"
+#include "__aux.h"
 
 #include <tuple>
 #include <functional>
@@ -58,39 +59,6 @@ int parse_int(basic_string_view<CharT>& s)
 	s.remove_prefix(it - s.begin());
 
 	return n;
-}
-
-template <int N>
-struct or_shift
-{
-	template <typename Int>
-	static constexpr
-	auto apply(Int n) -> Int
-	{
-		return or_shift<N / 2>::apply(n | (n >> N));
-	}
-};
-
-template <>
-struct or_shift<1>
-{
-	template <typename Int>
-	static constexpr
-	auto apply(Int n) -> Int
-	{
-		return n | (n >> 1);
-	}
-};
-
-template <typename Int, typename R = typename std::make_unsigned<Int>::type>
-constexpr
-auto pow2_roundup(Int n) -> R
-{
-	return or_shift
-	    <
-		std::numeric_limits<R>::digits / 2
-	    >
-	    ::apply(R(n) - 1) + 1;
 }
 
 enum class adjustment
@@ -391,9 +359,6 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 
 	return buf;
 }
-
-template <typename T, typename V>
-using not_void_or_t = If_t<std::is_void<T>, identity_of<V>, identity_of<T>>;
 
 }
 
