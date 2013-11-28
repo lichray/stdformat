@@ -21,4 +21,12 @@ static_assert(not is_nonarrow_convertible<int, _unscoped>{}, "");
 static_assert(not is_nonarrow_convertible<_scoped, int>{}, "");
 static_assert(not is_nonarrow_convertible<int, _scoped>{}, "");
 
+static_assert(pow2_roundup(0) == 0, "");
+static_assert(pow2_roundup(1) == 1, "");
+static_assert(pow2_roundup(63) == 64, "");
+static_assert(pow2_roundup(64) == 64, "");
+static_assert(pow2_roundup(65) == 128, "");
+static_assert(pow2_roundup('\x80') == 128, "");
+static_assert(pow2_roundup('\x81') == 0, "");
+
 int main() {}
