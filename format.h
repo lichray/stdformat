@@ -148,13 +148,44 @@ private:
 		formatter<T>().output(w, std::get<I>(tp));
 	}
 
+	template <int I, typename T, typename Writer, typename Tuple,
+	          typename Spec>
+	static
+	void do_format_with_spec(Writer w, Tuple tp, Spec spec, std::true_type)
+	{
+		formatter<T>(spec).output(w, std::get<I>(tp));
+	}
+
+	template <int I, typename T, typename Writer, typename Tuple,
+	          typename Spec>
+	static
+	void do_format_with_spec(Writer w, Tuple tp, Spec spec, std::false_type)
+	{
+		throw std::invalid_argument
+		{
+		    "Disabled format specifier"
+		};
+	}
+
 	template <int I, typename T, typename Writer, typename Tuple>
 	static
-	void do_format(Writer w, Tuple tp, adjustment adj, ...)
+	void do_format(Writer w, Tuple tp, adjustment adj)
 	{
 
 		decide_justification<T>(w, adj, 0);
 		do_format<I, T>(w, tp);
+		w.justify_content();
+	}
+
+	template <int I, typename T, typename Writer, typename Tuple,
+	          typename Spec>
+	static
+	void do_format(Writer w, Tuple tp, adjustment adj, Spec spec)
+	{
+
+		decide_justification<T>(w, adj, 0);
+		do_format_with_spec<I, T>(w, tp, spec,
+		    std::is_constructible<formatter<T>, Spec>());
 		w.justify_content();
 	}
 
@@ -326,7 +357,9 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 				    writer_type(buf, width), adj);
 
 			else
-				assert(!"not implemented");
+				write_arg_at(arg_index, tp,
+				    writer_type(buf, width), adj,
+				    fmt.substr(0, off));
 
 			fmt.remove_prefix(off + 1);
 		}

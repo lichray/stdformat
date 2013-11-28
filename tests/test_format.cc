@@ -4,6 +4,19 @@
 
 using stdex::format;
 
+struct NoSpec {};
+
+template <>
+struct stdex::formatter<NoSpec>
+{
+	template <typename Writer>
+	void output(Writer w, NoSpec)
+	{
+		w.send("NoSpec");
+	}
+};
+
+
 int main()
 {
 	assert(format("") == "");
@@ -35,4 +48,13 @@ int main()
 	assert(format("{:3}|{:10}", '1', "hello") == "  1|hello     ");
 	assert(format("{:<3}|{:>10}", '1', "hello") == "1  |     hello");
 	assert(format("{2:<3}|{1:10}", '1', "hello") == "hello|         1");
+
+	assert_throw(std::invalid_argument, format("{s}", 'a'));
+	assert_throw(std::invalid_argument, format("{c }", 'a'));
+
+	assert(format("{:c} {:s}", 'a', true) == "a true");
+	assert(format("{1:s}|{1:5s}", "str", "unused") == "str|str  ");
+
+	assert(format("{:8}", NoSpec()) == "  NoSpec");
+	assert_throw(std::invalid_argument, format("{:s}", NoSpec()));
 }

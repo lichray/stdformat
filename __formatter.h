@@ -187,16 +187,28 @@ struct char_formatter
 }
 
 template <>
-struct formatter<char> : detail::char_formatter<char> {};
+struct formatter<char> : detail::char_formatter<char>
+{
+	using char_formatter::char_formatter;
+};
 
 template <>
-struct formatter<wchar_t> : detail::char_formatter<wchar_t> {};
+struct formatter<wchar_t> : detail::char_formatter<wchar_t>
+{
+	using char_formatter::char_formatter;
+};
 
 template <>
-struct formatter<char16_t> : detail::char_formatter<char16_t> {};
+struct formatter<char16_t> : detail::char_formatter<char16_t>
+{
+	using char_formatter::char_formatter;
+};
 
 template <>
-struct formatter<char32_t> : detail::char_formatter<char32_t> {};
+struct formatter<char32_t> : detail::char_formatter<char32_t>
+{
+	using char_formatter::char_formatter;
+};
 
 template <typename CharT, typename Traits>
 struct formatter<basic_string_view<CharT, Traits>>
@@ -222,39 +234,57 @@ struct formatter<basic_string_view<CharT, Traits>>
 template <typename CharT, typename Traits, typename Allocator>
 struct formatter<std::basic_string<CharT, Traits, Allocator>>
 	: formatter<basic_string_view<CharT, Traits>>
-{};
+{
+	using formatter<basic_string_view<CharT, Traits>>::formatter;
+};
 
 template <>
-struct formatter<char const*>
-	: formatter<basic_string_view<char, std::char_traits<char>>>
-{};
+struct formatter<char const*> : formatter<string_view>
+{
+	using formatter<string_view>::formatter;
+};
 
 template <>
-struct formatter<wchar_t const*>
-	: formatter<basic_string_view<wchar_t, std::char_traits<wchar_t>>>
-{};
+struct formatter<wchar_t const*> : formatter<wstring_view>
+{
+	using formatter<wstring_view>::formatter;
+};
 
 template <>
-struct formatter<char16_t const*>
-	: formatter<basic_string_view<char16_t, std::char_traits<char16_t>>>
-{};
+struct formatter<char16_t const*> : formatter<u16string_view>
+{
+	using formatter<u16string_view>::formatter;
+};
 
 template <>
-struct formatter<char32_t const*>
-	: formatter<basic_string_view<char32_t, std::char_traits<char32_t>>>
-{};
+struct formatter<char32_t const*> : formatter<u32string_view>
+{
+	using formatter<u32string_view>::formatter;
+};
 
 template <>
-struct formatter<char*> : formatter<char const*> {};
+struct formatter<char*> : formatter<char const*>
+{
+	using formatter<char const*>::formatter;
+};
 
 template <>
-struct formatter<wchar_t*> : formatter<wchar_t const*> {};
+struct formatter<wchar_t*> : formatter<wchar_t const*>
+{
+	using formatter<wchar_t const*>::formatter;
+};
 
 template <>
-struct formatter<char16_t*> : formatter<char16_t const*> {};
+struct formatter<char16_t*> : formatter<char16_t const*>
+{
+	using formatter<char16_t const*>::formatter;
+};
 
 template <>
-struct formatter<char32_t*> : formatter<char32_t const*> {};
+struct formatter<char32_t*> : formatter<char32_t const*>
+{
+	using formatter<char32_t const*>::formatter;
+};
 
 template <typename T>
 struct formatter<T*>
