@@ -238,6 +238,15 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 	using string_type = std::basic_string<CharT, Traits, Allocator>;
 	using writer_type = format_writer<string_type>;
 
+	auto expect_more = [&]()
+	{
+		if (fmt.empty())
+			throw std::invalid_argument
+			{
+			    "unmatched '{' in format"
+			};
+	};
+
 	string_type buf(a);
 	int arg_index = 0;
 	bool sequential;
@@ -316,12 +325,7 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 			++arg_index;
 		}
 
-		if (fmt.empty())
-			throw std::invalid_argument
-			{
-			    "unmatched '{' in format"
-			};
-
+		expect_more();
 		ch = fmt.front();
 		fmt.remove_prefix(1);
 
@@ -330,15 +334,22 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 			adjustment adj = adjustment::unspecified;
 			int width = 0;
 
-			if (fmt.front() == '<')
+			expect_more();
+
+			switch (fmt.front())
 			{
+			case '<':
 				adj = adjustment::left;
-				fmt.remove_prefix(1);
-			}
-			else if (fmt.front() == '>')
-			{
+				break;
+			case '>':
 				adj = adjustment::right;
+				break;
+			}
+
+			if (adj != adjustment::unspecified)
+			{
 				fmt.remove_prefix(1);
+				expect_more();
 			}
 
 			if (leads_digits(fmt.front()))

@@ -41,8 +41,9 @@ int main()
 	assert(format("{} {}", true, false) == "true false");
 	assert(format("{2} {3} {1}", 'a', 'b', 'c') == "b c a");
 
-	assert_throw(std::invalid_argument, format("{:0.4d"));
-	assert_throw(std::invalid_argument, format("{0:"));
+	assert_throw(std::invalid_argument, format("{:4.4d"));
+	assert_throw(std::invalid_argument, format("{1:"));
+	assert_throw(std::invalid_argument, format("{1:<"));
 
 	assert(format("{:}", std::string("alt")) == "alt");
 	assert(format("{:3}|{:10}", '1', "hello") == "  1|hello     ");
