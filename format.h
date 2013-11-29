@@ -36,11 +36,13 @@ namespace stdex {
 
 namespace detail {
 
+#define _G(c) _STDEX_G(CharT, c)
+
 template <typename CharT>
 inline
 bool leads_digits(CharT ch)
 {
-	return '0' < ch and ch <= '9';
+	return _G('0') < ch and ch <= _G('9');
 }
 
 template <typename CharT>
@@ -48,11 +50,11 @@ inline
 int parse_int(basic_string_view<CharT>& s)
 {
 	auto it = s.begin();
-	int n = *it++ - '0';
+	int n = *it++ - _G('0');
 
-	for (; it != s.end() and ('0' <= *it and *it <= '9'); ++it)
+	for (; it != s.end() and (_G('0') <= *it and *it <= _G('9')); ++it)
 	{
-		auto d = *it - '0';
+		auto d = *it - _G('0');
 
 		if ((std::numeric_limits<int>::max() - d) / n < 10)
 			throw std::overflow_error
@@ -357,7 +359,7 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 
 	while (1)
 	{
-		auto off = fmt.find_first_of("{}");
+		auto off = fmt.find_first_of(_G("{}"));
 
 		if (off == spec_type::npos)
 		{
@@ -372,15 +374,15 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 		auto ch = fmt[off];
 		fmt.remove_prefix(off + 1);
 
-		if (ch == '}')
+		if (ch == _G('}'))
 		{
-			if (fmt.empty() or fmt.front() != '}')
+			if (fmt.empty() or fmt.front() != _G('}'))
 				throw std::invalid_argument
 				{
 				    "Single '}' encountered in format string"
 				};
 
-			buf.push_back('}');
+			buf.push_back(_G('}'));
 			fmt.remove_prefix(1);
 			continue;
 		}
@@ -391,9 +393,9 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 			    "Single '{' encountered in format string"
 			};
 
-		if (fmt.front() == '{')
+		if (fmt.front() == _G('{'))
 		{
-			buf.push_back('{');
+			buf.push_back(_G('{'));
 			fmt.remove_prefix(1);
 			continue;
 		}
@@ -431,7 +433,7 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 		ch = fmt.front();
 		fmt.remove_prefix(1);
 
-		if (ch == ':')
+		if (ch == _G(':'))
 		{
 			adjustment adj = adjustment::unspecified;
 			int width = 0;
@@ -440,10 +442,10 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 
 			switch (fmt.front())
 			{
-			case '<':
+			case _G('<'):
 				adj = adjustment::left;
 				break;
-			case '>':
+			case _G('>'):
 				adj = adjustment::right;
 				break;
 			}
@@ -458,7 +460,7 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 			{
 				width = parse_int(fmt);
 			}
-			else if (fmt.front() == '*')
+			else if (fmt.front() == _G('*'))
 			{
 				fmt.remove_prefix(1);
 
@@ -480,7 +482,7 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 					width = 0;
 			}
 
-			auto off = fmt.find('}');
+			auto off = fmt.find(_G('}'));
 
 			if (off == spec_type::npos)
 				throw std::invalid_argument
@@ -500,7 +502,7 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 			fmt.remove_prefix(off + 1);
 		}
 
-		else if (ch == '}')
+		else if (ch == _G('}'))
 		{
 			write_arg_at(arg_index, tp, writer_type(buf));
 		}
@@ -516,6 +518,8 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 
 	return buf;
 }
+
+#undef _G
 
 }
 

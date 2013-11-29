@@ -44,6 +44,12 @@ auto vformat(Allocator const&, basic_string_view<CharT>, Tuple)
 template <int, int, int, typename>
 struct write_arg_at_impl;
 
+#define _STDEX_G(T, literal) _Generic(T{}, \
+    char: literal, \
+    wchar_t: L ## literal, \
+    char16_t: u ## literal, \
+    char32_t: U ## literal)
+
 }
 
 template <typename StringType>
@@ -98,12 +104,14 @@ public:
 		buf_.append(s.data(), s.size());
 	}
 
+#define _G(c) _STDEX_G(char_type, c)
+
 	void content_width_will_be(int w)
 	{
 		assert(old_sz_ == buf_.size());
 
 		if (padding_left_ and w < width_)
-			buf_.append(width_ - w, ' ');
+			buf_.append(width_ - w, _G(' '));
 	}
 
 #ifndef _STDEX_TESTING
@@ -121,9 +129,9 @@ private:
 		if (w < width_)
 		{
 			if (padding_left_)
-				buf_.insert(old_sz_, width_ - w, ' ');
+				buf_.insert(old_sz_, width_ - w, _G(' '));
 			else
-				buf_.append(width_ - w, ' ');
+				buf_.append(width_ - w, _G(' '));
 		}
 	}
 
@@ -132,12 +140,16 @@ private:
 		padding_left_ = true;
 	}
 
+#undef _G
+
 private:
 	StringType&	buf_;
 	size_type	old_sz_;
 	int		width_;
 	bool 		padding_left_;
 };
+
+#define _G(c) _STDEX_G(CharT, c)
 
 template <typename T>
 struct formatter;
@@ -150,15 +162,20 @@ struct formatter<bool>
 	template <typename CharT>
 	explicit formatter(basic_string_view<CharT> spec)
 	{
-		if (spec != "s")
-			throw std::invalid_argument(std::string(spec));
+		if (spec != _G("s"))
+			throw std::invalid_argument
+			{
+			    R"(bool format specifier should be "s")"
+			};
 	}
 
 	template <typename Writer>
 	void output(Writer w, bool v)
 	{
+		using CharT = typename Writer::char_type;
+
 		w.content_width_will_be(v ? 4 : 5);
-		w.send(v ? "true" : "false");
+		w.send(v ? _G("true") : _G("false"));
 	}
 };
 
@@ -198,8 +215,11 @@ struct char_formatter
 
 	explicit char_formatter(basic_string_view<CharT> spec)
 	{
-		if (spec != "c")
-			throw std::invalid_argument(std::string(spec));
+		if (spec != _G("c"))
+			throw std::invalid_argument
+			{
+			    R"(char format specifier should be "c")"
+			};
 	}
 
 	template <typename Writer>
@@ -322,8 +342,11 @@ struct formatter<basic_string_view<CharT, Traits>>
 
 	explicit formatter(basic_string_view<CharT> spec)
 	{
-		if (spec != "s")
-			throw std::invalid_argument(std::string(spec));
+		if (spec != _G("s"))
+			throw std::invalid_argument
+			{
+			    R"(string format specifier should be "s")"
+			};
 	}
 
 	template <typename Writer>
@@ -397,10 +420,15 @@ struct formatter<T*>
 	template <typename CharT>
 	explicit formatter(basic_string_view<CharT> spec)
 	{
-		if (spec != "p")
-			throw std::invalid_argument(std::string(spec));
+		if (spec != _G("p"))
+			throw std::invalid_argument
+			{
+			    R"(pointer format specifier should be "p")"
+			};
 	}
 };
+
+#undef _G
 
 }
 

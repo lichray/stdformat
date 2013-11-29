@@ -59,6 +59,9 @@ int main()
 	assert(format("{:c} {:s}", 'a', true) == "a true");
 	assert(format("{1:s}|{1:5s}", "str", "unused") == "str|str  ");
 
+	assert(format(u"{:c} {:s}", u'a', true) == u"a true");
+	assert(format(u"{1:s}|{1:5s}", u"str", u"unused") == u"str|str  ");
+
 	assert(format("{:8}", NoSpec()) == "  NoSpec");
 	assert_throw(std::invalid_argument, format("{:s}", NoSpec()));
 
