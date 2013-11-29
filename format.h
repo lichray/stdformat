@@ -47,13 +47,21 @@ template <typename CharT>
 inline
 int parse_int(basic_string_view<CharT>& s)
 {
-	int n = 0;
 	auto it = s.begin();
+	int n = *it++ - '0';
 
 	for (; it != s.end() and ('0' <= *it and *it <= '9'); ++it)
 	{
+		auto d = *it - '0';
+
+		if ((std::numeric_limits<int>::max() - d) / n < 10)
+			throw std::overflow_error
+			{
+			    "integer overflow in format"
+			};
+
 		n *= 10;
-		n += *it - '0';
+		n += d;
 	}
 
 	s.remove_prefix(it - s.begin());

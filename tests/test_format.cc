@@ -38,6 +38,9 @@ int main()
 	assert_throw(std::out_of_range, format("{2}", 'a'));
 	assert_throw(std::out_of_range, format("{} {} {}", 'a', 'a'));
 
+	assert_throw(std::out_of_range, format("{2147483647}"));
+	assert_throw(std::overflow_error, format("{2147483648}"));
+
 	assert(format("{} {}", true, false) == "true false");
 	assert(format("{2} {3} {1}", 'a', 'b', 'c') == "b c a");
 
