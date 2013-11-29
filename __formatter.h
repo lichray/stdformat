@@ -164,6 +164,33 @@ struct formatter<bool>
 
 namespace detail {
 
+template <typename IntType>
+struct int_formatter
+{
+	template <typename Writer>
+	void output(Writer w, IntType v)
+	{
+	}
+};
+
+template <typename UIntType>
+struct uint_formatter
+{
+	template <typename Writer>
+	void output(Writer w, UIntType v)
+	{
+	}
+};
+
+template <typename RealType>
+struct float_formatter
+{
+	template <typename Writer>
+	void output(Writer w, RealType v)
+	{
+	}
+};
+
 template <typename CharT>
 struct char_formatter
 {
@@ -184,6 +211,83 @@ struct char_formatter
 };
 
 }
+
+template <>
+struct formatter<signed char> : detail::int_formatter<signed char>
+{
+};
+
+template <>
+struct formatter<short> : detail::int_formatter<short>
+{
+	using int_formatter::int_formatter;
+};
+
+template <>
+struct formatter<int> : detail::int_formatter<int>
+{
+	using int_formatter::int_formatter;
+};
+
+template <>
+struct formatter<long> : detail::int_formatter<long>
+{
+	using int_formatter::int_formatter;
+};
+
+template <>
+struct formatter<long long> : detail::int_formatter<long long>
+{
+	using int_formatter::int_formatter;
+};
+
+template <>
+struct formatter<unsigned char> : detail::uint_formatter<unsigned char>
+{
+};
+
+template <>
+struct formatter<unsigned short> : detail::uint_formatter<unsigned short>
+{
+	using uint_formatter::uint_formatter;
+};
+
+template <>
+struct formatter<unsigned int> : detail::uint_formatter<unsigned int>
+{
+	using uint_formatter::uint_formatter;
+};
+
+template <>
+struct formatter<unsigned long> : detail::uint_formatter<unsigned long>
+{
+	using uint_formatter::uint_formatter;
+};
+
+template <>
+struct formatter<unsigned long long>
+	: detail::uint_formatter<unsigned long long>
+{
+	using uint_formatter::uint_formatter;
+};
+
+template <>
+struct formatter<float> : detail::float_formatter<float>
+{
+	using float_formatter::float_formatter;
+};
+
+template <>
+struct formatter<double> : detail::float_formatter<double>
+{
+	using float_formatter::float_formatter;
+};
+
+template <>
+struct formatter<long double> : detail::float_formatter<long double>
+{
+	using float_formatter::float_formatter;
+};
 
 template <>
 struct formatter<char> : detail::char_formatter<char>

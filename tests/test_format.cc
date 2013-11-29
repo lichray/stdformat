@@ -61,4 +61,17 @@ int main()
 
 	assert(format("{:8}", NoSpec()) == "  NoSpec");
 	assert_throw(std::invalid_argument, format("{:s}", NoSpec()));
+
+	assert_throw(std::invalid_argument, format("{1:*"));
+	assert_throw(std::invalid_argument, format("{1:*0d}"));
+
+	assert(format("{:*}", 4, 'a') == "   a");
+	assert(format("{:*}", -2, 'a') == "a");
+	assert(format("{1:<*2}", 'a', 3U) == "a  ");
+
+	assert_throw(std::out_of_range, format("{:*}"));
+	assert_throw(std::overflow_error, format("{:*}", 2147483648LL));
+	assert_throw(std::overflow_error, format("{:*}", 4294967295UL));
+	assert_throw(std::underflow_error, format("{:*}", -2147483649L));
+	assert_throw(std::invalid_argument, format("{:*}", 8.0));
 }

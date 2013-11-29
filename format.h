@@ -206,6 +206,132 @@ void write_arg_at(int n, Tuple tp, Writer w, Opts... o)
 	write_arg_at_impl<1, std::tuple_size<Tuple>{}>::apply(n, tp, w, o...);
 }
 
+template <int Low, int High, int Mid = (Low + High) / 2, typename = void>
+struct arg_as_int_at_impl;
+
+template <int Low, int High, int Mid>
+struct arg_as_int_at_impl<Low, High, Mid, If_ct<(Low > High)>>
+{
+	template <typename Tuple>
+	static
+	int apply(int n, Tuple tp)
+	{
+		throw std::out_of_range
+		{
+		    "tuple index out of range"
+		};
+	}
+};
+
+template <int Mid>
+struct arg_as_int_at_impl<Mid, Mid, Mid, void>
+{
+	template <typename Tuple>
+	static
+	int apply(int n, Tuple tp)
+	{
+		if (n != Mid)
+			throw std::out_of_range
+			{
+			    "tuple index out of range"
+			};
+
+		return do_get_int(std::get<Mid - 1>(tp));
+	}
+
+private:
+
+	template <typename T>
+	static
+	int do_get_int(T const& t)
+	{
+		return do_get_int(t,
+		    is_nonarrow_convertible<T, int>(),
+		    std::is_integral<T>());
+	}
+
+	template <typename T>
+	static
+	int do_get_int(T const& t, std::true_type, ...)
+	{
+		return t;
+	}
+
+	template <typename T>
+	static
+	int do_get_int(T const& t, std::false_type, std::true_type)
+	{
+		test_range(t);
+
+		return t;
+	}
+
+	// floating point excluded
+	template <typename T>
+	static
+	auto test_range(T t)
+		-> If_t<std::is_signed<T>>
+	{
+		if (t < std::numeric_limits<int>::min())
+			throw std::underflow_error
+			{
+			    "target type integer underflow"
+			};
+
+		if (t > std::numeric_limits<int>::max())
+			throw std::overflow_error
+			{
+			    "target type integer overflow"
+			};
+	}
+
+	// shorter unsigned excluded
+	template <typename T>
+	static
+	auto test_range(T t)
+		-> If_t<std::is_unsigned<T>>
+	{
+		if (t > std::numeric_limits<int>::max())
+			throw std::overflow_error
+			{
+			    "target type integer overflow"
+			};
+	}
+
+	template <typename T>
+	static
+	int do_get_int(T const& t, std::false_type, std::false_type)
+	{
+		throw std::invalid_argument
+		{
+		    "target type cannot be used as an integer"
+		};
+	}
+};
+
+template <int Low, int High, int Mid>
+struct arg_as_int_at_impl<Low, High, Mid, If_ct<(Low < High)>>
+{
+	template <typename Tuple>
+	static
+	int apply(int n, Tuple tp)
+	{
+		if (n < Mid)
+			return arg_as_int_at_impl<Low, Mid - 1>::apply(n, tp);
+		else if (n == Mid)
+			return arg_as_int_at_impl<Mid, Mid>::apply(n, tp);
+		else
+			return arg_as_int_at_impl<Mid + 1, High>::apply(n, tp);
+	}
+};
+
+template <typename Tuple>
+inline
+int arg_as_int_at(int n, Tuple tp)
+{
+	return arg_as_int_at_impl<1, std::tuple_size<Tuple>{}>::apply(n, tp);
+}
+
 template <typename CharT, typename Traits, typename Allocator, typename Tuple>
 auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 	-> std::basic_string<CharT, Traits, Allocator>
@@ -329,7 +455,30 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 			}
 
 			if (leads_digits(fmt.front()))
+			{
 				width = parse_int(fmt);
+			}
+			else if (fmt.front() == '*')
+			{
+				fmt.remove_prefix(1);
+
+				if (sequential)
+					width = arg_as_int_at(arg_index++, tp);
+
+				else if (fmt.empty() or
+					    not leads_digits(fmt.front()))
+					throw std::invalid_argument
+					{
+						"expecting a nonzero digit"
+					};
+
+				else
+					width = arg_as_int_at(parse_int(fmt),
+					    tp);
+
+				if (width < 0)
+					width = 0;
+			}
 
 			auto off = fmt.find('}');
 
