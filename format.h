@@ -139,7 +139,7 @@ private:
 	{
 		throw std::invalid_argument
 		{
-		    "Disabled format specifier"
+		    "target type does not accept format specifier"
 		};
 	}
 
