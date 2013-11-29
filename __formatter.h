@@ -46,7 +46,7 @@ struct write_arg_at_impl;
 
 }
 
-template <typename StringType, typename Codecvt = void>
+template <typename StringType>
 struct format_writer
 {
 	using char_type = typename StringType::value_type;
