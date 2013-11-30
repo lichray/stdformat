@@ -141,7 +141,7 @@ private:
 	{
 		throw std::invalid_argument
 		{
-		    "target type does not accept format specifier"
+		    "target type accepts no format specifier"
 		};
 	}
 
@@ -277,13 +277,13 @@ private:
 		if (t < std::numeric_limits<int>::min())
 			throw std::underflow_error
 			{
-			    "target type integer underflow"
+			    "integer underflow when converting target object"
 			};
 
 		if (t > std::numeric_limits<int>::max())
 			throw std::overflow_error
 			{
-			    "target type integer overflow"
+			    "integer overflow when converting target object"
 			};
 	}
 
@@ -296,7 +296,7 @@ private:
 		if (t > std::numeric_limits<int>::max())
 			throw std::overflow_error
 			{
-			    "target type integer overflow"
+			    "integer overflow when converting target object"
 			};
 	}
 
@@ -306,7 +306,7 @@ private:
 	{
 		throw std::invalid_argument
 		{
-		    "target type cannot be used as an integer"
+		    "target type cannot be used as int"
 		};
 	}
 };
