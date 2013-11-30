@@ -468,7 +468,7 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 					width = arg_as_int_at(arg_index++, tp);
 
 				else if (fmt.empty() or
-					    not leads_digits(fmt.front()))
+				    not leads_digits(fmt.front()))
 					throw std::invalid_argument
 					{
 						"expecting a nonzero digit"
@@ -537,7 +537,9 @@ auto format(Allocator const& a,
 	<
 	    typename Allocator::value_type,
 	    detail::not_void_or_t
-	    <Traits, std::char_traits<typename Allocator::value_type>>,
+	    <
+		Traits, std::char_traits<typename Allocator::value_type>
+	    >,
 	    Allocator
 	>
 {
@@ -545,7 +547,9 @@ auto format(Allocator const& a,
 		<
 		    typename Allocator::value_type,
 		    detail::not_void_or_t
-		    <Traits, std::char_traits<typename Allocator::value_type>>
+		    <
+			Traits, std::char_traits<typename Allocator::value_type>
+		    >
 		>
 		(a, fmt, std::forward_as_tuple(t...));
 }

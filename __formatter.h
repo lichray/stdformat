@@ -62,11 +62,8 @@ struct format_writer
 #ifndef _STDEX_TESTING
 
 private:
-	template
-	<
-	    typename CharT, typename Traits, typename Allocator,
-	    typename Tuple
-	>
+	template <typename CharT, typename Traits, typename Allocator,
+	          typename Tuple>
 	friend
 	auto detail::vformat(Allocator const&, basic_string_view<CharT>, Tuple)
 		-> std::basic_string<CharT, Traits, Allocator>;
