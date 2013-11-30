@@ -20,7 +20,6 @@ struct stdex::formatter<NoSpec>
 int main()
 {
 	assert(format("") == "");
-	// gcc fails
 	assert(format(std::allocator<char>(), "") == "");
 
 	assert(format("test") == "test");
