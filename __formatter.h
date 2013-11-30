@@ -38,8 +38,8 @@ namespace detail {
 
 template <typename CharT, typename Traits, typename Allocator, typename Tuple>
 inline
-auto vformat(Allocator const&, basic_string_view<CharT>, Tuple)
-	-> std::basic_string<CharT, Traits, Allocator>;
+void vsformat(std::basic_string<CharT, Traits, Allocator>&,
+    basic_string_view<CharT>, Tuple);
 
 template <int, int, int, typename>
 struct write_arg_at_impl;
@@ -65,8 +65,8 @@ private:
 	template <typename CharT, typename Traits, typename Allocator,
 	          typename Tuple>
 	friend
-	auto detail::vformat(Allocator const&, basic_string_view<CharT>, Tuple)
-		-> std::basic_string<CharT, Traits, Allocator>;
+	void detail::vsformat(std::basic_string<CharT, Traits, Allocator>&,
+	    basic_string_view<CharT>, Tuple);
 
 #endif
 

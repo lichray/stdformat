@@ -335,8 +335,9 @@ int arg_as_int_at(int n, Tuple tp)
 }
 
 template <typename CharT, typename Traits, typename Allocator, typename Tuple>
-auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
-	-> std::basic_string<CharT, Traits, Allocator>
+void vsformat(std::basic_string<CharT, Traits, Allocator>& buf,
+              basic_string_view<CharT> fmt,
+              Tuple tp)
 {
 	using spec_type = basic_string_view<CharT>;
 	using string_type = std::basic_string<CharT, Traits, Allocator>;
@@ -351,11 +352,8 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 			};
 	};
 
-	string_type buf(a);
 	int arg_index = 0;
 	bool sequential;
-
-	buf.reserve(pow2_roundup(fmt.size()));
 
 	while (1)
 	{
@@ -515,8 +513,6 @@ auto vformat(Allocator const& a, basic_string_view<CharT> fmt, Tuple tp)
 			};
 		}
 	}
-
-	return buf;
 }
 
 #undef _G
@@ -543,15 +539,20 @@ auto format(Allocator const& a,
 	    Allocator
 	>
 {
-	return detail::vformat
-		<
-		    typename Allocator::value_type,
-		    detail::not_void_or_t
-		    <
-			Traits, std::char_traits<typename Allocator::value_type>
-		    >
-		>
-		(a, fmt, std::forward_as_tuple(t...));
+	std::basic_string
+	<
+	    typename Allocator::value_type,
+	    detail::not_void_or_t
+	    <
+		Traits, std::char_traits<typename Allocator::value_type>
+	    >,
+	    Allocator
+	> buf(a);
+
+	buf.reserve(detail::pow2_roundup(fmt.size()));
+	detail::vsformat(buf, fmt, std::forward_as_tuple(t...));
+
+	return buf;
 }
 
 template <typename Traits, typename... T>
