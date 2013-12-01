@@ -33,8 +33,7 @@
 
 namespace stdex {
 
-template <typename CharT, typename Traits = std::char_traits<CharT>,
-          typename Allocator = std::allocator<CharT>>
+template <typename CharT, typename Traits, typename Allocator>
 struct ostream_format
 {
 	using char_type = CharT;
@@ -44,18 +43,6 @@ struct ostream_format
 
 	explicit ostream_format(ostream_type& out) :
 		ostream_format(out, allocator_type())
-	{}
-
-	template <typename Stream>
-	explicit ostream_format(Stream& out,
-	    If_t
-	    <
-		std::is_convertible
-		<
-		    typename Stream::allocator_type, allocator_type
-		>
-	    >) :
-		ostream_format(out, out.get_allocator())
 	{}
 
 	explicit ostream_format(ostream_type& out, allocator_type const& a) :
@@ -162,6 +149,30 @@ private:
 	ostream_type&	out_;
 	string_type	buf_;
 };
+
+template <typename Stream>
+auto make_formatted(Stream& out)
+{
+	return ostream_format
+	<
+	    typename Stream::char_type,
+	    typename Stream::traits_type,
+	    std::allocator<typename Stream::char_type>
+	>
+	(out);
+}
+
+template <typename Stream, typename Allocator>
+auto make_formatted(Stream& out, Allocator const& a)
+{
+	return ostream_format
+	<
+	    typename Stream::char_type,
+	    typename Stream::traits_type,
+	    Allocator
+	>
+	(out, a);
+}
 
 }
 

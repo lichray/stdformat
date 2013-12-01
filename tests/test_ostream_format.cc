@@ -9,7 +9,7 @@
 int main()
 {
 	std::ostringstream os;
-	stdex::ostream_format<char> trace(os);
+	auto trace = stdex::make_formatted(os);
 
 	assert(trace("", "unused"));
 	assert(os.str() == "");
@@ -21,7 +21,7 @@ int main()
 	assert(os.str() == "a truestr|str  ");
 
 	std::stringstream ss;
-	stdex::ostream_format<char> challege(ss, trace.get_allocator());
+	auto challege = stdex::make_formatted(ss, trace.get_allocator());
 
 	ss.exceptions(std::ios_base::badbit);
 
@@ -35,7 +35,7 @@ int main()
 	assert(ss.rdstate() & std::ios_base::failbit);
 	assert(ss.rdstate() & std::ios_base::badbit);
 
-	stdex::ostream_format<wchar_t> wprintf(std::wcout);
+	auto wprintf = stdex::make_formatted(std::wcout);
 
 	wprintf(L"hello, {}\n", L"world");
 }
