@@ -102,11 +102,10 @@ struct write_arg_at_impl<Mid, Mid, Mid, void>
 	static
 	void apply(int n, Tuple tp, Writer w, Opts... o)
 	{
-		using T = typename std::decay
+		using T = std::decay_t
 		    <
 			typename std::tuple_element<Mid - 1, Tuple>::type
-		    >
-		    ::type;
+		    >;
 
 		if (n != Mid)
 			throw std::out_of_range
@@ -529,15 +528,6 @@ inline
 auto format(Allocator const& a,
             basic_string_view<typename Allocator::value_type> fmt,
             T const&... t)
-	-> std::basic_string
-	<
-	    typename Allocator::value_type,
-	    detail::not_void_or_t
-	    <
-		Traits, std::char_traits<typename Allocator::value_type>
-	    >,
-	    Allocator
-	>
 {
 	std::basic_string
 	<

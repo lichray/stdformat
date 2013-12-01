@@ -1,6 +1,6 @@
-# ccconf test_string_view CXX=clang++ CXXFLAGS+=-std=c++11 -stdlib=libc++ -Wall -g LDFLAGS+=-stdlib=libc++
+# ccconf test_string_view CXX=clang++ CXXFLAGS+=-std=c++1y -stdlib=libc++ -Wall -g LDFLAGS+=-stdlib=libc++
 LDFLAGS  = -stdlib=libc++  
-CXXFLAGS = -std=c++11 -stdlib=libc++ -Wall -g  
+CXXFLAGS = -std=c++1y -stdlib=libc++ -Wall -g  
 CXX      = clang++  
 
 .PHONY : all clean

@@ -58,7 +58,7 @@ struct or_shift<1>
 	}
 };
 
-template <typename Int, typename R = typename std::make_unsigned<Int>::type>
+template <typename Int, typename R = std::make_unsigned_t<Int>>
 constexpr
 auto pow2_roundup(Int n) -> R
 {
@@ -161,8 +161,8 @@ struct is_nonarrow_convertible_impl<From, To,
 template <typename From, typename To>
 struct is_nonarrow_convertible : is_nonarrow_convertible_impl
 	<
-	    typename std::remove_cv<From>::type,
-	    typename std::remove_cv<To>::type
+	    std::remove_cv_t<From>,
+	    std::remove_cv_t<To>
 	>
 {};
 
