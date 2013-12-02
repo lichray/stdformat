@@ -21,7 +21,7 @@ int main()
 	assert(os.str() == "a truestr|str  ");
 
 	std::stringstream ss;
-	auto challege = stdex::make_formatted(ss, trace.get_allocator());
+	auto challege = stdex::make_formatted(ss, std::allocator<char>());
 
 	ss.exceptions(std::ios_base::badbit);
 

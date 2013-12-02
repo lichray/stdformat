@@ -51,11 +51,6 @@ struct ostream_format
 		buf_.reserve(detail::pow2_roundup(80));
 	}
 
-	allocator_type get_allocator() const noexcept
-	{
-		return buf_.get_allocator();
-	}
-
 	template <typename... T>
 	bool operator()(basic_string_view<CharT> fmt, T const&... t)
 	{
