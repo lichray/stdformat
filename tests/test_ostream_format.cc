@@ -32,8 +32,7 @@ int main()
 	ss.exceptions(std::ios_base::failbit);
 
 	assert_throw(std::invalid_argument, challege("{1:"));
-	assert(ss.rdstate() & std::ios_base::failbit);
-	assert(ss.rdstate() & std::ios_base::badbit);
+	assert(ss.rdstate() == std::ios_base::failbit);
 
 	auto wprintf = stdex::make_formatted(std::wcout);
 

@@ -56,6 +56,8 @@ struct ostream_format
 	{
 		assert(buf_.empty());
 
+		auto error_state = ostream_type::badbit;
+
 		try
 		{
 			typename ostream_type::sentry ok(out_);
@@ -72,8 +74,8 @@ struct ostream_format
 			}
 			catch (...)
 			{
-				setstate_and_rethrow(ostream_type::failbit);
-				return false;
+				error_state = ostream_type::failbit;
+				throw;
 			}
 
 			auto p = buf_.data();
@@ -106,7 +108,7 @@ struct ostream_format
 
 		catch (...)
 		{
-			setstate_and_rethrow(ostream_type::badbit);
+			setstate_and_rethrow(error_state);
 			return false;
 		}
 	}
@@ -114,7 +116,7 @@ struct ostream_format
 private:
 	using string_type = std::basic_string<CharT, Traits, Allocator>;
 
-	void setstate_and_rethrow(typename ostream_type::iostate rd)
+	void setstate_and_rethrow(std::ios_base::iostate rd)
 	{
 		bool rethrow = false;
 
