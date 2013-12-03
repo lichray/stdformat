@@ -13,7 +13,7 @@ del { text-decoration: line-through; background-color: #FFA0A0 }
 <tr><th>Reply-to:</th>	<td>Zhihao Yuan &lt;zy at miator dot net&gt;</td></tr>
 </tbody></table>
 
-# ???
+# C++ String Formatting
 
 * TOC
 {:toc}
@@ -30,7 +30,7 @@ del { text-decoration: line-through; background-color: #FFA0A0 }
 
 ## Technical Specifications
 
-### Header `<???>`
+### Header `<format>`
 
     namespace std {
     namespace experimental {
