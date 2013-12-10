@@ -52,7 +52,7 @@ weakness which cannot be overcome:
   You may want to write
 
     ```
-    format("{:h} past!", 3h + 30min);  // not specified in this paper
+    format("{:ms} past!", 1s + 100ms);  // not specified in this paper
     ```
 
   , but `printf` has no such extensibility.  GNU`[2]`'s version has some --
