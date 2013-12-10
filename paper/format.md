@@ -73,6 +73,28 @@ the design of the existing extensible solutions mentioned above.
 
 ## Impact on the Standard
 
+Two formatting interfaces are proposed here: an overload set of a `format`
+function, and a function object type, `ostream_format`, to generate the
+`format`-like function objects which write to the output streams.
+
+The most significant change is a new framework to customize the formatting of
+the fundamental types, the standard library types, and the user-defined types.
+The framework is consisted of:
+
+- `formatter<T>`, a class template to be specialized by the users for a decayed
+  type `T`.  A specialization may be constructed with a piece of the format
+  string, and an object of the specialization will be used to perform the
+  actual formatting.
+
+- `format_writter<StringType>`, a class template as a proxy connecting the
+  formatting result (an object of `basic_string`) and the output method of
+  a `formatter<T>` specialization.
+
+The proposed library depends on N3762`[5]`; `basic_string_view` is explicitly
+required by both the formatting interfaces and the `formatter<T>`
+specifications as the format strings.
+
+
 ## Design Decisions
 
 ### Syntax
