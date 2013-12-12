@@ -63,7 +63,7 @@ struct ostream_format
 			typename ostream_type::sentry ok(out_);
 
 			if (not ok)
-				return false;
+				return out_.good();
 
 			clear_buf _{ &buf_ };
 
@@ -83,14 +83,14 @@ struct ostream_format
 			auto m = std::numeric_limits<std::streamsize>::max();
 
 			if (not n)
-				return true;
+				return out_.good();
 
 			while (n > m)
 			{
 				if (out_.rdbuf()->sputn(p, m) != m)
 				{
 					out_.setstate(ostream_type::badbit);
-					return false;
+					return out_.good();
 				}
 
 				p += m;
@@ -100,16 +100,16 @@ struct ostream_format
 			if (out_.rdbuf()->sputn(p, n) != n)
 			{
 				out_.setstate(ostream_type::badbit);
-				return false;
+				return out_.good();
 			}
 
-			return true;
+			return out_.good();
 		}
 
 		catch (...)
 		{
 			setstate_and_rethrow(error_state);
-			return false;
+			return out_.good();
 		}
 	}
 
