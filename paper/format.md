@@ -32,15 +32,15 @@ weakness which cannot be overcome:
 
   Compare
 
-    ```
+    ``
     "%1$s=%2$*3$d,%4$*3$d\n"
-    ```
+    ``
 
   with
 
-    ```
+    ``
     "{1:s}={2:*3d},{4:*3d}\n"
-    ```
+    ``
 
   The traditional `printf` (as specified in the C standard) does not support
   positional arguments; POSIX added them.  However, without explicit
@@ -51,9 +51,9 @@ weakness which cannot be overcome:
 
   You may want to write
 
-    ```
+    ``
     format("{:ms} past!", 1s + 100ms);  // not specified in this paper
-    ```
+    ``
 
   , but `printf` has no such extensibility.  GNU`[2]`'s version has some --
   you can register new conversion specifications (the last character) globaly,
