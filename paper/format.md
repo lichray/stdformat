@@ -99,6 +99,39 @@ specifications as the format strings.
 
 ### Syntax
 
+- Ordered flags.
+
+  `printf` format flags (**`+`**, **`#`**, **`0`**, etc.) can appear in any
+  order, more than once, and need a set of overriding rules to work.  This
+  gives the same formatting instruction multiple representations, which is not
+  intuitive for code review, and adds unnecessary complexity to the parser.
+
+  The practice of ordered flags is succeeded in Python:
+  `[[fill]align][sign][#][0][width][,][.precision][type]`
+
+- Support both sequential and positional access to arguments.
+
+  Positional access is usually more explicit,
+
+  ``
+  "Error: {0}: {1} {2}"
+  ``
+
+  , and the feature itself is necessary for internationalization.  But
+  sequential access also has its market since `printf`.  I try not to over
+  design here.
+
+  Note that the syntax proposed in this paper uses count from _1_ instead of
+  _0_, so the example above will be
+
+  ``
+  "Error: {1}: {2} {3}"
+  ``
+
+  , and `0` is just not a valid character to start a decimal integer in a
+  format string to avoid `00` (and many other complexities).  For the same
+  reason, C++ the language category `0` as an octal literal instead of decimal.
+
 ### Extensibility
 
 ## Technical Specifications
