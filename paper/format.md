@@ -156,7 +156,50 @@ benchmarks show that this depends on the ratio between the fixed content and
 the formatted content, and the complexity of the formatting.  More work need
 to be done.
 
-### Extensibility
+### Customizability
+
+As mentioned in [Impact on the Standard](#impact_on_the_standard), the
+proposed formatting facilities have maximized the extensibility -- imagine
+having a `formatter<locale_sensitive<T>>`.  But a `formatter` is not
+omnipotent:
+
+1. Justification is not customizable; it's done automatically and enforced.
+
+   Consider the following `operator<<` which formats a fraction number:
+
+   ``template <typename CharT, template Traits>
+   auto operator<<(basic_ostream<CharT, Traits>& out, Fraction const& v)
+   {
+       return out << v.den << '/' << v.num;
+   }``
+
+   The function above is intuitive, but it's incorrectly sensible to `fmtflags`
+   (plus locale), and `width()`.  The first issue just doesn't exist in other
+   formatting solutions, and the later can be forgot in the proposed
+   solution.  Because the justification specifications, for example,
+   `"<10"` in `"{1:<10#d}"`, are not observable to a `formatter`, and a
+   `formatter` has no access to the underlying format buffer.  Justification
+   is then performed by the `format` machinery.
+
+2. Format specification is exposed to `formatter`.
+
+   There is no predefined formatting information like `fmtflags`.  They are
+   either error-prone (as in `printf`, lots of undefined behaviors), or add
+   parsing overhead to all `formatter`s (as in Folly).  The proposed
+   solution passes the format specifications, for example, `"#d"` in
+   `"{1:<10#d}"`, as `basic_string_view`s, to `formatter<T>`'s constructor.
+
+   The practice of type-specific parsing can be found in Python.
+
+3. Format specification is optional to a `formatter` class.
+
+   There are lots of interests of formatting objects with the "default" format,
+   and a user may furtherly want a `formatter` which respond to no format
+   specification.  The proposed solution always default constructs
+   `formatter<T>` when the format specification is empty, and throws an
+   exception when it's not but the `formatter<T>` cannot be constructed with
+   a `basic_string_view`.  Thus, the user can simply forget about everything
+   explained in 2) and 3) to get the precise behavior that he/she wants.
 
 ## Technical Specifications
 
