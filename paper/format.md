@@ -179,7 +179,8 @@ to be done.
 ## Sample Implementation
 
 A sample implementation is available at
-<https://github.com/lichray/stdformat>
+<https://github.com/lichray/stdformat>; many `formatter`s are not implemented
+yet. 
 
 ## Future Issues
 
