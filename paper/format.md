@@ -1,7 +1,8 @@
 <!-- maruku -o format.html format.md -->
 
 <style type="text/css">
-pre code { display: block; margin-left: 2em; }
+pre>code { display: block; margin-left: 2em; }
+code { white-space: pre-wrap; }
 ins { text-decoration: none; font-weight: bold; background-color: #A0FFA0 }
 del { text-decoration: line-through; background-color: #FFA0A0 }
 </style>
@@ -32,15 +33,11 @@ weakness which cannot be overcome:
 
   Compare
 
-    ``
-    "%1$s=%2$*3$d,%4$*3$d\n"
-    ``
+  ``"%1$s=%2$*3$d,%4$*3$d\n"``
 
   with
 
-    ``
-    "{1:s}={2:*3d},{4:*3d}\n"
-    ``
+  ``"{1:s}={2:*3d},{4:*3d}\n"``
 
   The traditional `printf` (as specified in the C standard) does not support
   positional arguments; POSIX added them.  However, without explicit
@@ -51,9 +48,7 @@ weakness which cannot be overcome:
 
   You may want to write
 
-    ``
-    format("{:ms} past!", 1s + 100ms);  // not specified in this paper
-    ``
+  ``format("{:ms} past!", 1s + 100ms);  // not specified in this paper``
 
   , but `printf` has no such extensibility.  GNU`[2]`'s version has some --
   you can register new conversion specifications (the last character) globaly,
@@ -113,9 +108,7 @@ specifications as the format strings.
 
   Positional access is usually more explicit,
 
-  ``
-  "Error: {0}: {1} {2}"
-  ``
+  ``"Error: {0}: {1} {2}"``
 
   , and the feature itself is necessary for internationalization.  But
   sequential access also has its market since `printf`.  I try not to over
@@ -124,9 +117,7 @@ specifications as the format strings.
   Note that the syntax proposed in this paper uses count from _1_ instead of
   _0_, so the example above will be
 
-  ``
-  "Error: {1}: {2} {3}"
-  ``
+  ``"Error: {1}: {2} {3}"``
 
   , and `0` is just not a valid character to start a decimal integer in a
   format string to avoid `00` (and many other complexities).  For the same
