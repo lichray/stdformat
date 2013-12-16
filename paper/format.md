@@ -176,11 +176,6 @@ to be done.
 
     }}
 
-### Wording
-
-This is an initial report; a wording can be prepared after a further
-discussion.
-
 ## Sample Implementation
 
 A sample implementation is available at
