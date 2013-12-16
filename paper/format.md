@@ -132,6 +132,39 @@ specifications as the format strings.
   format string to avoid `00` (and many other complexities).  For the same
   reason, C++ the language category `0` as an octal literal instead of decimal.
 
+### Interface
+
+The formatting facilities proposed in this paper target `basic_string`.  This
+design clearly separates I/O and formatting with data, and brings the following
+advantages:
+
+1. No locale overhead, or, the locale support, if being added, can be optional.
+   A side-effect of doing this is that the supported character types are
+   limited to those with implied encodings (`char`, `wchar_t`, `char16_t`, and
+   `char32_t`); we see no issue with it in `<filesystem>` `[6]`.
+
+2. No virtual calls.
+
+3. Zero overhead, for whatever "overhead" means, when the user wants a string.
+   Construct a `stringstream`, output to it, and copy the result out, is both
+   costly and nonintuitive, and brings inexplicable error handling.
+
+4. Works with any third-party I/O solutions.  I/O is a big topic in real-world
+   applications.  A formatting solution engaged with a specific I/O library
+   is rather limited.
+
+5. Output integrity.  What happens if a formatting error occurs in the middle
+   of a chain of `<<` calls?  To avoid incomplete lines to be left in the log,
+   log4cxx`[7]` has to buffer the result with an additional string stream.
+   Having a format buffer in front of an I/O buffer solves the problems like
+   this, may help solving the multi-thread problem with streams`[8]`, and
+   brings trivial strong exception safety.
+
+The last question is how this design affects the performance.  Some early
+benchmarks show that this depends on the ratio between the fixed content and
+the formatted content, and the complexity of the formatting.  More work need
+to be done.
+
 ### Extensibility
 
 ## Technical Specifications
