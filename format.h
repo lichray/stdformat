@@ -516,26 +516,24 @@ void vsformat(std::basic_string<CharT, Traits, Allocator>& buf,
 
 #undef _G
 
+template <typename CharT, typename Allocator>
+struct string_from_allocator
+{
+	using type = std::basic_string<CharT, std::char_traits<CharT>, Allocator>;
+};
+
 }
 
-template
-<
-    typename Traits = void,
-    typename Allocator,
-    typename... T
->
+template <typename Traits, typename Allocator, typename... T>
 inline
 auto format(Allocator const& a,
-            basic_string_view<typename Allocator::value_type> fmt,
+            basic_string_view<typename Traits::char_type> fmt,
             T const&... t)
 {
 	std::basic_string
 	<
-	    typename Allocator::value_type,
-	    detail::not_void_or_t
-	    <
-		Traits, std::char_traits<typename Allocator::value_type>
-	    >,
+	    typename Traits::char_type,
+	    Traits,
 	    Allocator
 	> buf(a);
 
@@ -557,6 +555,54 @@ auto format(basic_string_view<typename Traits::char_type> fmt, T const&... t)
 {
 	return format<Traits>(std::allocator<typename Traits::char_type>(),
 	    fmt, t...);
+}
+
+template <typename Allocator, typename... T>
+inline
+auto format(Allocator const& a, string_view fmt, T const&... t)
+	-> If_t
+	<
+	    Not<std::is_convertible<Allocator, string_view>>,
+	    detail::string_from_allocator<char, Allocator>
+	>
+{
+	return format<std::string::traits_type>(a, fmt, t...);
+}
+
+template <typename Allocator, typename... T>
+inline
+auto format(Allocator const& a, wstring_view fmt, T const&... t)
+	-> If_t
+	<
+	    Not<std::is_convertible<Allocator, wstring_view>>,
+	    detail::string_from_allocator<wchar_t, Allocator>
+	>
+{
+	return format<std::wstring::traits_type>(a, fmt, t...);
+}
+
+template <typename Allocator, typename... T>
+inline
+auto format(Allocator const& a, u16string_view fmt, T const&... t)
+	-> If_t
+	<
+	    Not<std::is_convertible<Allocator, u16string_view>>,
+	    detail::string_from_allocator<char16_t, Allocator>
+	>
+{
+	return format<std::u16string::traits_type>(a, fmt, t...);
+}
+
+template <typename Allocator, typename... T>
+inline
+auto format(Allocator const& a, u32string_view fmt, T const&... t)
+	-> If_t
+	<
+	    Not<std::is_convertible<Allocator, u32string_view>>,
+	    detail::string_from_allocator<char32_t, Allocator>
+	>
+{
+	return format<std::u32string::traits_type>(a, fmt, t...);
 }
 
 template <typename... T>

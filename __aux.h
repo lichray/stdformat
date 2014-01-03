@@ -69,9 +69,6 @@ auto pow2_roundup(Int n) -> R
 	    ::apply(R(n) - 1) + 1;
 }
 
-template <typename T, typename V>
-using not_void_or_t = If_t<std::is_void<T>, identity_of<V>, identity_of<T>>;
-
 template <typename From, typename To, typename = void>
 struct is_nonarrow_convertible_impl : std::is_convertible<From, To> {};
 
