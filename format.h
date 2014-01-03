@@ -529,6 +529,21 @@ inline
 auto format(Allocator const& a,
             basic_string_view<typename Traits::char_type> fmt,
             T const&... t)
+	-> If_t
+	<
+	    Not
+	    <
+		std::is_convertible
+		<
+		    Allocator,
+		    basic_string_view<typename Traits::char_type>
+		>
+	    >,
+	    identity_of
+	    <
+		std::basic_string<typename Traits::char_type, Traits, Allocator>
+	    >
+	>
 {
 	std::basic_string
 	<

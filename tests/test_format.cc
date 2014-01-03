@@ -22,6 +22,9 @@ int main()
 	assert(format("") == "");
 	assert(format(std::allocator<char>(), "") == "");
 
+	assert(format("", "") == "");
+	assert(format<std::char_traits<char>>("", "") == "");
+
 	assert(format("test") == "test");
 	assert(format("{{}}") == "{}");
 
