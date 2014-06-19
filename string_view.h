@@ -216,6 +216,14 @@ struct basic_string_view
 		    data(), size());
 	}
 
+	template <typename Allocator = std::allocator<CharT>>
+	std::basic_string<CharT, Traits, Allocator> to_string(
+	    Allocator const& a = Allocator()) const
+	{
+		return std::basic_string<CharT, Traits, Allocator>(
+		    data(), size(), a);
+	}
+
 	size_type copy(CharT* s, size_type n, size_type pos = 0) const
 	{
 		if (pos > size())

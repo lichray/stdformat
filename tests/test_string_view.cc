@@ -67,6 +67,7 @@ int main()
 	assert(s.length() == xlen);
 	assert(sv1 == s);
 	assert(sv1 != sb);
+	assert(sv1.to_string() == s);
 
 	assert(sv1.find('\0') == 4);
 	assert(sv1.find('?') == string_view::npos);
