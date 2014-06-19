@@ -39,12 +39,12 @@ namespace detail {
 
 template <typename Container>
 #if defined(_LIBCPP_VERSION) && 0
-using iter = std::__wrap_iter<typename Container::pointer>;
+using iter = std::__wrap_iter<typename Container::const_pointer>;
 #elif defined(__GLIBCXX__)
 using iter = __gnu_cxx::__normal_iterator
-	<typename Container::pointer, Container>;
+	<typename Container::const_pointer, Container>;
 #else
-using iter = typename Container::pointer;
+using iter = typename Container::const_pointer;
 #endif
 
 }
@@ -59,10 +59,10 @@ struct basic_string_view
 	using size_type = std::size_t;
 	using difference_type = std::ptrdiff_t;
 
-	using pointer = value_type const*;
-	using const_pointer = pointer;
-	using reference = value_type const&;
-	using const_reference = reference;
+	using pointer = value_type*;
+	using const_pointer = value_type const*;
+	using reference = value_type&;
+	using const_reference = value_type const&;
 
 	using iterator = detail::iter<basic_string_view>;
 	using const_iterator = iterator;
@@ -139,8 +139,6 @@ struct basic_string_view
 		return sz_;
 	}
 
-	// N3762 violation: no max_size().
-
 	constexpr size_type length() const noexcept
 	{
 		return size();
@@ -151,7 +149,7 @@ struct basic_string_view
 		return size() == 0;
 	}
 
-	// N3762 violations: element access return rvalues.
+	// N4023 violations: element access return rvalues.
 
 	constexpr CharT operator[](size_type pos) const
 	{
