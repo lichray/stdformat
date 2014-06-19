@@ -260,9 +260,7 @@ struct basic_string_view
 		return find(s, pos, traits_type::length(s));
 	}
 
-	// N3762 disagreement: not noexcept since C++14
-
-	size_type find(CharT ch, size_type pos = 0) const
+	size_type find(CharT ch, size_type pos = 0) const noexcept
 	{
 		if (pos >= size())
 			return npos;
