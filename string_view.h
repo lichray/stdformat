@@ -32,6 +32,7 @@
 #include <iterator>
 #include <type_traits>
 #include <functional>
+#include <stdexcept>
 
 namespace stdex {
 
@@ -96,12 +97,12 @@ struct basic_string_view
 
 	constexpr iterator begin() const noexcept
 	{
-		return it_;
+		return iterator(it_);
 	}
 
 	constexpr iterator end() const noexcept
 	{
-		return it_ + sz_;
+		return iterator(it_ + sz_);
 	}
 
 	constexpr const_iterator cbegin() const noexcept
@@ -174,7 +175,7 @@ struct basic_string_view
 
 	constexpr CharT const* data() const noexcept
 	{
-		return &*it_;
+		return it_;
 	}
 
 	void clear() noexcept
@@ -345,14 +346,14 @@ struct basic_string_view
 		return offset_from_begin(it);
 	}
 
-	friend inline
+	friend
 	bool operator==(basic_string_view a, basic_string_view b)
 	{
 		return a.size() == b.size() and traits_type::compare(a.data(),
 		    b.data(), a.size()) == 0;
 	}
 
-	friend inline
+	friend
 	bool operator!=(basic_string_view a, basic_string_view b)
 	{
 		return !(a == b);
@@ -375,14 +376,14 @@ private:
 			return it - begin();
 	}
 
-	iterator it_;
+	const_pointer it_;
 	size_type sz_;
 };
 
 template <typename CharT, typename Traits>
 inline
 void swap(basic_string_view<CharT, Traits>& a,
-    basic_string_view<CharT, Traits>& b) noexcept(noexcept(a.swap(b)))
+    basic_string_view<CharT, Traits>& b) noexcept
 {
 	a.swap(b);
 }

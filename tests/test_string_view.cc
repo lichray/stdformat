@@ -33,6 +33,7 @@ int main()
 
 	static_assert(sv0.empty(), "");
 	assert(sv0.length() == string_view(std::string()).size());
+	assert(sv0.data() == nullptr);
 
 	string_view sv2 = "meow\0!";
 
