@@ -33,15 +33,14 @@
 #include <type_traits>
 #include <functional>
 #include <stdexcept>
+#include <iosfwd>
 
 namespace stdex {
 
 namespace detail {
 
 template <typename Container>
-#if defined(_LIBCPP_VERSION) && 0
-using iter = std::__wrap_iter<typename Container::const_pointer>;
-#elif defined(__GLIBCXX__)
+#if defined(__GLIBCXX__)
 using iter = __gnu_cxx::__normal_iterator
 	<typename Container::const_pointer, Container>;
 #else
@@ -378,6 +377,85 @@ void swap(basic_string_view<CharT, Traits>& a,
     basic_string_view<CharT, Traits>& b) noexcept
 {
 	a.swap(b);
+}
+
+template <typename CharT, typename Traits>
+inline
+auto operator<<(std::basic_ostream<CharT, Traits>& out,
+    basic_string_view<CharT, Traits> s) -> decltype(out)
+{
+#if defined(__GLIBCXX__)
+	return __ostream_insert(out, s.data(), s.size());
+#else
+	typedef std::basic_ostream<CharT, Traits> ostream_type;
+
+	typename ostream_type::sentry ok(out);
+
+	if (not ok)
+		return out;
+
+	try
+	{
+		decltype(out.width()) w = 0;
+		decltype(out.width()) n = s.size();
+
+		if (out.width() > n)
+		{
+			w = out.width() - n;
+
+			if ((out.flags() & ostream_type::adjustfield) !=
+			    ostream_type::left)
+				w = -w;
+		}
+
+		if (w == 0)
+		{
+			if (out.rdbuf()->sputn(s.data(), n) != n)
+			{
+				out.setstate(ostream_type::badbit);
+				return out;
+			}
+		}
+		else
+		{
+			auto c = out.fill();
+
+			for (; w < 0; ++w)
+			{
+				if (Traits::eq_int_type(out.rdbuf()->sputc(c),
+				    Traits::eof()))
+				{
+					out.setstate(ostream_type::badbit);
+					return out;
+				}
+			}
+
+			if (out.rdbuf()->sputn(s.data(), n) != n)
+			{
+				out.setstate(ostream_type::badbit);
+				return out;
+			}
+
+			for (; w > 0; --w)
+			{
+				if (Traits::eq_int_type(out.rdbuf()->sputc(c),
+				    Traits::eof()))
+				{
+					out.setstate(ostream_type::badbit);
+					return out;
+				}
+			}
+		}
+
+		out.width(0);
+		return out;
+	}
+	catch (...)
+	{
+		out.setstate(ostream_type::badbit);
+		return out;
+	}
+#endif
 }
 
 using string_view = basic_string_view<char>;

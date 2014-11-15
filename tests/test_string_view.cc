@@ -1,6 +1,8 @@
 #include "../string_view.h"
 
 #include "assertions.h"
+#include <sstream>
+#include <iomanip>
 
 using stdex::string_view;
 using namespace stdex::string_literals;
@@ -107,4 +109,22 @@ int main()
 	assert(sv1.find_first_not_of(sv1) == string_view::npos);
 	assert(sv1.find_first_not_of("", 2, 0) == 2);
 	assert(sv1.find_first_not_of(""_sv, sv1.length()) == string_view::npos);
+
+	std::stringstream ss;
+	ss << sv1;
+	assert(ss.str() == sv1);
+
+	using namespace std;
+
+	ss.str("");
+	ss << setw(7) << sv1 << '1';
+	assert(ss.str() == " " + sv1.to_string() + '1');
+
+	ss.str("");
+	ss << left << setfill('0') << setw(8) << sv1;
+	assert(ss.str() == sv1.to_string() + "00");
+
+	ss.str("");
+	ss << setw(-1) << sv1;
+	assert(ss.str() == sv1);
 }
