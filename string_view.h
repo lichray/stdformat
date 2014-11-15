@@ -185,20 +185,12 @@ struct basic_string_view
 
 	void remove_prefix(size_type n)
 	{
-		if (n > size())
-			throw std::out_of_range(
-			    "basic_string_view::remove_prefix");
-
 		it_ += n;
 		sz_ -= n;
 	}
 
 	void remove_suffix(size_type n)
 	{
-		if (n > size())
-			throw std::out_of_range(
-			    "basic_string_view::remove_suffix");
-
 		sz_ -= n;
 	}
 
